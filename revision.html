@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Le tube digestif du cheval · révision MESB</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Source+Sans+3:wght@400;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+/* Même identité que « Trois bottes » : vert pré pour l'action, paille pour les repères, feux tricolores réservés aux risques.
+   Une colonne lisible au téléphone ; les simulations sont des panneaux avec curseurs et un verdict en couleur. */
+:root{
+  --paper:#f3f5ef; --surface:#ffffff; --ink:#1b2a21; --muted:#5a685f; --line:#d6ddd2;
+  --accent:#2c6a43; --accent-ink:#ffffff; --hay:#b8901c; --hay-soft:#f6eccb;
+  --ok:#2b7a4b; --ok-soft:#dff0e5; --warn:#b86a00; --warn-soft:#fbe9cc; --bad:#b83226; --bad-soft:#f8dcd8;
+  --stom:#c98a2b; --si:#5b8fb0; --li:#5f9b63; --mouth:#9a6bb0;
+  --font-display:"Bricolage Grotesque","Avenir Next","Segoe UI",sans-serif;
+  --font-body:"Source Sans 3","Segoe UI",system-ui,sans-serif;
+  --font-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  --r:10px; color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#111713; --surface:#18211b; --ink:#e4ebe5; --muted:#9aa99f; --line:#2b372f;
+    --accent:#5fb882; --accent-ink:#0e1a12; --hay:#d9b84f; --hay-soft:#2e2814;
+    --ok:#5cc086; --ok-soft:#173222; --warn:#eea43c; --warn-soft:#382711; --bad:#ef7466; --bad-soft:#3b1b18;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#111713; --surface:#18211b; --ink:#e4ebe5; --muted:#9aa99f; --line:#2b372f;
+  --accent:#5fb882; --accent-ink:#0e1a12; --hay:#d9b84f; --hay-soft:#2e2814;
+  --ok:#5cc086; --ok-soft:#173222; --warn:#eea43c; --warn-soft:#382711; --bad:#ef7466; --bad-soft:#3b1b18;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--font-body);font-size:17px;line-height:1.5}
+h1,h2,h3{font-family:var(--font-display);line-height:1.15;text-wrap:balance;margin:0}
+h1{font-size:1.8rem;font-weight:800} h2{font-size:1.35rem;font-weight:800} h3{font-size:1.05rem;font-weight:600}
+p{margin:0}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--hay);outline-offset:2px}
+.wrap{max-width:900px;margin:0 auto;padding:16px 16px 90px;display:grid;gap:16px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:grid;gap:12px}
+.eyebrow{font-size:.78rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--hay)}
+.muted{color:var(--muted)} .small{font-size:.88rem}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:9px 14px;font-weight:600}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+ul.clean{margin:0;padding-left:1.1em;display:grid;gap:4px}
+.manager{border-left:5px solid var(--hay);background:var(--hay-soft);padding:10px 14px;border-radius:0 8px 8px 0}
+.num{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+/* barre du haut et onglets */
+.top{position:sticky;top:0;z-index:5;background:var(--surface);border-bottom:1px solid var(--line)}
+.top .in{max-width:900px;margin:0 auto;padding:10px 16px;display:flex;gap:10px;align-items:center}
+.brand{font-family:var(--font-display);font-weight:800}
+.tabs{position:fixed;bottom:0;left:0;right:0;z-index:5;background:var(--surface);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr)}
+.tabs button{border:0;background:transparent;padding:11px 4px;font-size:.82rem;font-weight:700;color:var(--muted);border-top:3px solid transparent}
+.tabs button[aria-selected="true"]{color:var(--accent);border-top-color:var(--accent)}
+/* le parcours */
+.tract{display:flex;height:56px;border-radius:10px;overflow:hidden;border:1px solid var(--line)}
+.tract button{border:0;color:#fff;font-weight:700;font-size:.82rem;padding:0 6px;display:flex;align-items:center;justify-content:center;text-align:center;line-height:1.1;opacity:.82}
+.tract button[aria-pressed="true"]{opacity:1;box-shadow:inset 0 -5px 0 rgba(0,0,0,.35)}
+.organs{display:flex;gap:6px;flex-wrap:wrap}
+.organs button{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 12px;font-weight:600;font-size:.9rem}
+.organs button[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.fact{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;align-items:baseline}
+.fact .k{font-family:var(--font-mono);font-weight:500;color:var(--accent);white-space:nowrap}
+/* simulations */
+.sim label{font-weight:600}
+input[type=range]{width:100%;accent-color:var(--accent)}
+select,input[type=number]{border:1px solid var(--line);border-radius:8px;background:var(--paper);padding:8px 10px}
+.out{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.tile{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:10px 12px}
+.tile .v{font-family:var(--font-display);font-weight:800;font-size:1.5rem;font-variant-numeric:tabular-nums}
+.tile .l{font-size:.82rem;color:var(--muted)}
+.verdict{border-radius:8px;padding:10px 14px;font-weight:600;border:1.5px solid}
+.verdict.v{color:var(--ok);background:var(--ok-soft)} .verdict.o{color:var(--warn);background:var(--warn-soft)} .verdict.r{color:var(--bad);background:var(--bad-soft)}
+.verdict span{color:var(--ink);font-weight:400}
+.day{display:grid;grid-template-columns:repeat(24,1fr);gap:2px}
+.day .h{display:grid;gap:2px}
+.day button{border:1px solid var(--line);background:var(--paper);height:30px;border-radius:4px;padding:0;font-size:.7rem}
+.day button.hay{background:var(--li);border-color:var(--li);color:#fff}
+.day button.conc{background:var(--stom);border-color:var(--stom);color:#fff;font-weight:700}
+.day button.conc.hay{background:linear-gradient(180deg,var(--li) 0 50%,var(--stom) 50% 100%);border-color:var(--stom)}
+.day .ph{height:10px;border-radius:3px}
+.day .lbl{font-size:.62rem;color:var(--muted);text-align:center;font-family:var(--font-mono)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.85rem;color:var(--muted)}
+.sw{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:5px}
+.gauge{position:relative;height:18px;border-radius:9px;background:linear-gradient(90deg,var(--ok) 0 25%,var(--warn) 25% 50%,var(--bad) 50% 100%)}
+.gauge .needle{position:absolute;top:-6px;width:4px;height:30px;background:var(--ink);border-radius:2px;transform:translateX(-2px)}
+.gauge-l{display:flex;justify-content:space-between;font-size:.75rem;color:var(--muted);font-family:var(--font-mono)}
+/* quiz */
+.opt{display:block;width:100%;text-align:left;border:1.5px solid var(--line);background:var(--surface);border-radius:8px;padding:10px 12px;font-weight:600}
+.opt.good{border-color:var(--ok);background:var(--ok-soft)} .opt.badc{border-color:var(--bad);background:var(--bad-soft)}
+.opt:disabled{cursor:default}
+.prog{height:6px;border-radius:3px;background:var(--line);overflow:hidden} .prog i{display:block;height:100%;background:var(--accent)}
+/* cartes */
+.cards{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}
+.flip{border:1px solid var(--line);background:var(--surface);border-radius:var(--r);padding:16px;text-align:left;min-height:140px;display:grid;gap:8px;align-content:start}
+.flip.front{background:var(--hay-soft);border-color:var(--hay);align-content:center;justify-items:center;text-align:center}
+.flip.front h3{font-size:1.3rem}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@media (max-width:560px){h1{font-size:1.45rem}.day button{height:26px}.day .lbl{font-size:.55rem}}
+</style>
+</head>
+<body>
+<header class="top"><div class="in"><span class="brand">Le tube digestif du cheval</span><span class="muted small">révision · MS MESB</span></div></header>
+<main class="wrap" id="app"></main>
+<nav class="tabs" role="tablist" id="tabs"></nav>
+
+<script>
+"use strict";
+/* ======================= CONTENU (d'après le poly de physiologie digestive et la fiche récapitulative) ======================= */
+const ORGANS = [
+  {id:"bouche", nom:"Bouche et dents", court:"Bouche", col:"var(--mouth)",
+   facts:[["Lèvres","très mobiles, avec des vibrisses : le cheval ne voit pas ce qu'il mange, il le trie au toucher et à l'odeur"],
+          ["Incisives","en haut et en bas : idéales pour couper une herbe rase"],
+          ["Mâchoire","35 kg/cm² (humain : 14) ; mouvement circulaire qui broie les fibres comme une meule"],
+          ["Dents","elles sortent de 4 à 5 mm par an pour compenser l'usure ; l'usure n'est pas homogène (surdents)"]],
+   gerant:"Prévoir un suivi dentaire régulier. Signes d'alerte : le cheval « chique » (recrache des boulettes), du grain entier dans le crottin, des défenses au mors, une perte d'état. Une ration riche en granulés ou certains filets à foin usent mal les dents."},
+  {id:"salive", nom:"Salive", court:"Salive", col:"var(--mouth)",
+   facts:[["Quand ?","seulement quand le cheval mâche"],
+          ["Combien ?","35 à 40 litres par jour"],
+          ["Rôle","basique (pH 8,6 à 9,1), elle tamponne l'acidité de l'estomac ; presque pas d'enzymes digestives"],
+          ["Foin vs granulés","1 kg de MS de foin : 40 min et 3 000 à 4 000 coups de mâchoire ; 1 kg de MS de granulés : 10 min et 1 000 coups"]],
+   gerant:"Plus le cheval mâche, plus il salive et plus son estomac est protégé. Le foin occupe et protège ; les granulés vont vite et protègent peu."},
+  {id:"oesophage", nom:"Œsophage", court:"Œsophage", col:"var(--mouth)",
+   facts:[["Longueur","1,2 à 1,5 m, étroit"],
+          ["Sens unique","pas de retour possible des aliments : risque de bouchon œsophagien"],
+          ["Pas de vomissement","le sphincter d'entrée de l'estomac est très puissant : le cheval ne peut pas vomir"]],
+   gerant:"Un cheval ne peut ni recracher un aliment avalé de travers, ni rejeter une plante toxique. Attention aux aliments secs avalés trop vite (granulés, pulpe non trempée) et aux plantes toxiques dans les pâtures."},
+  {id:"estomac", nom:"Estomac", court:"Estomac", col:"var(--stom)", vol:9,
+   facts:[["Volume","8 à 15 litres, soit environ 9 % du tube digestif : un tout petit estomac"],
+          ["Acide en continu","il fabrique de l'acide même quand il est vide"],
+          ["Deux zones","le haut (zone squameuse) n'est pas protégé contre l'acide ; le bas se protège avec du mucus"],
+          ["Le tapis de foin","le foin flotte et forme une barrière ; avec du foin, la zone haute reste vers pH 5 à 7, sans foin elle descend vers pH 3 à 4"]],
+   gerant:"Jamais plus de 3 à 4 heures sans fourrage. Donner du foin avant les granulés. Un cheval à jeun, ou nourri surtout de granulés, risque des ulcères d'estomac. Les anti-inflammatoires fragilisent aussi l'estomac : toujours sur avis vétérinaire."},
+  {id:"grele", nom:"Intestin grêle", court:"Grêle", col:"var(--si)", vol:30,
+   facts:[["Longueur","environ 15 à 25 m, plutôt court pour la taille de l'animal"],
+          ["Pas de vésicule biliaire","la bile coule en continu : le cheval est fait pour manger tout le temps"],
+          ["Amidon","très peu d'enzyme pour digérer l'amidon (environ 50 fois moins que le porc) ; l'adaptation à un aliment riche en amidon est lente (environ 2 mois) et limitée"],
+          ["Graisses","bien digérées : l'huile est bien tolérée après une adaptation progressive de 3 à 4 semaines"],
+          ["Vitesse","de la bouche à la fin du grêle : environ 4 à 7 heures"]],
+   gerant:"Pour apporter de l'énergie, l'huile est une option plus sûre que l'amidon (céréales), à condition d'augmenter progressivement. Tout changement d'aliment se fait en douceur, sur plusieurs semaines."},
+  {id:"gros", nom:"Gros intestin", court:"Gros intestin", col:"var(--li)", vol:61,
+   facts:[["Volume","plus de 60 % du tube digestif, environ 7 m de long (caecum et côlon)"],
+          ["Cuve de fermentation","des milliards de microbes digèrent les fibres : 15 % dans le caecum, 85 % dans le côlon"],
+          ["Conditions","pH proche de 7, 38 à 40 °C, sans oxygène"],
+          ["Produits","les microbes fabriquent des acides gras volatils, une grande source d'énergie pour le cheval"],
+          ["Si trop d'amidon arrive","il fermente au mauvais endroit : acidité, acide lactique, risque de coliques et de fourbure"]],
+   gerant:"Les fibres nourrissent les microbes qui nourrissent le cheval. Fourrage en continu, pas de gros repas de céréales, pas de changement brutal. Le stress (transport, sevrage, box) appauvrit aussi le microbiote."}
+];
+const RECAP = [
+  ["Incisives","Très efficaces pour couper l'herbe rase."],
+  ["Nez et bouche","Odorat très important ; lèvres préhensiles et vibrisses pour trier les aliments."],
+  ["Mastication","Mouvement circulaire, usure non homogène. Foin : mastication longue, ample et lente. Concentrés : rapide et courte."],
+  ["Mâchoire","Force importante (35 kg/cm²), molaires larges en crêtes, pousse continue des dents (4-5 mm/an) : faite pour broyer les fibres."],
+  ["Œsophage","Long et étroit (1,2-1,5 m), pas de retour possible : risque de bouchon œsophagien. Le cheval ne vomit pas."],
+  ["Salive","Produite seulement en mâchant, 35-40 L/jour, basique, pouvoir tampon, pauvre en enzymes. 1 kg de MS de foin : 40 min ; de concentrés : 10 min."],
+  ["Estomac","Petit (8-15 L). Acide produit en continu. Zone haute non protégée : le tapis de foin et la salive la protègent. À jeun ou concentrés seuls : ulcères."],
+  ["Intestin grêle","Court, pas de vésicule biliaire (bile en continu). Peu d'amylase : amidon mal digéré, adaptation lente (2 mois). Graisses bien digérées."],
+  ["Gros intestin","60 % du volume. Fermentation des fibres (caecum 15 %, côlon 85 %), pH ~7. Les fibres sont indispensables au microbiote."]
+];
+const QUIZ = [
+  {q:"Pourquoi un cheval doit-il avoir du fourrage presque en permanence ?", o:["Son estomac fabrique de l'acide en continu, même vide","Il a besoin de beaucoup de protéines","Son estomac est très grand et doit être rempli","Pour user ses incisives"], a:0, x:"L'acide est produit en continu. Le foin et la salive protègent la paroi de l'estomac : sans eux, risque d'ulcères."},
+  {q:"Combien de temps un cheval peut-il rester sans fourrage sans risque pour son estomac ?", o:["3 à 4 heures au maximum","8 heures, le temps d'une nuit","24 heures","Aucune importance s'il a eu ses granulés"], a:0, x:"Au-delà de 3 à 4 heures sans fourrage, l'acidité de l'estomac attaque la zone non protégée."},
+  {q:"Un cheval peut-il vomir ?", o:["Non, jamais","Oui, comme le chien","Oui, mais seulement en cas de colique","Seulement les poulains"], a:0, x:"Son sphincter est trop puissant. Conséquences : il ne peut pas rejeter une plante toxique, et un estomac trop plein peut se rompre."},
+  {q:"Quand le cheval produit-il de la salive ?", o:["Seulement quand il mâche","En permanence, comme l'humain","Seulement quand il voit de la nourriture","Seulement la nuit"], a:0, x:"Pas de mastication, pas de salive. D'où l'intérêt du foin, qui fait mâcher longtemps."},
+  {q:"Pourquoi donner le foin AVANT les granulés ?", o:["Le foin forme un tapis qui protège l'estomac de l'acidité","Le foin rend les granulés plus appétents","Pour que le cheval mange moins de granulés","C'est sans importance"], a:0, x:"Sans foin dans l'estomac, les granulés tombent au fond dans l'acide et la zone haute de l'estomac n'est plus protégée."},
+  {q:"Manger 1 kg (matière sèche) de foin prend environ…", o:["40 minutes et 3 000 à 4 000 coups de mâchoire","10 minutes et 1 000 coups de mâchoire","2 heures","5 minutes"], a:0, x:"Contre 10 minutes et 1 000 coups pour 1 kg de granulés : le foin occupe le cheval et le fait saliver bien plus."},
+  {q:"Où le cheval digère-t-il les fibres ?", o:["Dans le gros intestin (caecum et côlon), grâce aux microbes","Dans l'estomac, comme la vache","Dans l'intestin grêle, grâce à ses enzymes","Dans la bouche, grâce à la salive"], a:0, x:"Le cheval est un herbivore monogastrique : sa « cuve de fermentation » est le gros intestin, plus de 60 % du tube digestif."},
+  {q:"Que se passe-t-il si un repas contient trop d'amidon (céréales) ?", o:["L'amidon non digéré arrive dans le gros intestin et fermente : acidité, risque de coliques et de fourbure","Il est stocké dans le foie sans conséquence","Il est éliminé dans le crottin sans effet","Le cheval vomit l'excès"], a:0, x:"L'intestin grêle du cheval digère mal l'amidon. L'excès « passe » dans le gros intestin et perturbe les microbes."},
+  {q:"Un cheval passe à un aliment beaucoup plus riche en céréales. Son intestin s'adapte…", o:["Lentement (environ 2 mois) et de façon limitée","En 2 jours","Jamais","Immédiatement"], a:0, x:"Les enzymes de l'amidon augmentent lentement et restent faibles. D'où les transitions alimentaires progressives."},
+  {q:"Pour donner plus d'énergie à un cheval de sport, quelle source le cheval digère-t-il bien ?", o:["L'huile, après une adaptation progressive de 3 à 4 semaines","Le sucre en morceaux","Une grande quantité d'orge en un seul repas","Le pain"], a:0, x:"Le cheval digère bien les graisses. L'huile apporte de l'énergie sans le risque de l'amidon en excès."},
+  {q:"Quels signes peuvent indiquer un problème dentaire ?", o:["Le cheval recrache des boulettes, du grain entier dans le crottin, des défenses au mors","Un poil brillant","Un cheval qui boit beaucoup","Un cheval qui se roule"], a:0, x:"Les dents poussent toute la vie et s'usent de façon irrégulière : un suivi dentaire régulier est nécessaire."},
+  {q:"Un cheval laisse ses granulés minéraux au fond de sa mangeoire. Pourquoi est-ce possible ?", o:["Ses lèvres très mobiles lui permettent de trier précisément","Il ne les voit pas","Il n'a pas assez faim","C'est un signe de maladie grave"], a:0, x:"Le cheval trie au toucher et à l'odeur. Les granulés minéraux peu appétents sont souvent mis de côté."},
+  {q:"On introduit un nouvel aromatisant dans la ration. Combien de temps faut-il pour juger s'il plaît ?", o:["Au moins une semaine d'adaptation","Un repas suffit","Une heure","Un mois minimum"], a:0, x:"Les chevaux ont besoin d'au moins une semaine pour s'habituer à une nouvelle saveur."},
+  {q:"Quelle part du tube digestif représente le gros intestin chez le cheval ?", o:["Plus de 60 %","Environ 10 %","Environ 30 %","Environ 90 %"], a:0, x:"Contre environ 9 % pour l'estomac et 30 % pour l'intestin grêle."},
+  {q:"Pourquoi le cheval n'a-t-il pas de vésicule biliaire ?", o:["Il est fait pour manger en continu : la bile coule en permanence","Il ne digère pas les graisses","C'est une maladie fréquente","Elle est remplacée par l'estomac"], a:0, x:"Chez les espèces qui font de gros repas, la vésicule stocke la bile. Le cheval, lui, mange par petites quantités toute la journée."}
+];
+
+/* ======================= OUTILS ======================= */
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fr=(v,d=0)=>Number(v).toLocaleString("fr-FR",{minimumFractionDigits:d,maximumFractionDigits:d});
+const LS={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch(e){return d;}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}};
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+/* ======================= ÉTAT ======================= */
+const S={tab:"parcours", organ:"estomac", sim:"journee",
+  mast:{foin:9, conc:2},
+  day:LS.get("rev-day",null)||defaultDay(),
+  amid:{pv:500, feed:"orge", pct:52, kg:2, meals:2},
+  quiz:null, best:LS.get("rev-best",0), flipped:{}};
+function defaultDay(){ const d=Array.from({length:24},()=>({hay:false,conc:false}));
+  [7,8,18,19,20].forEach(h=>d[h].hay=true); d[7].conc=true; d[18].conc=true; return d; }
+
+/* ======================= VUES ======================= */
+const TABS=[["parcours","Le parcours"],["simu","Simulations"],["quiz","Quiz"],["fiches","Fiches"]];
+function renderTabs(){ $("tabs").innerHTML=TABS.map(([id,l])=>`<button role="tab" aria-selected="${S.tab===id}" data-tab="${id}">${l}</button>`).join(""); }
+
+function viewParcours(){
+  const o=ORGANS.find(x=>x.id===S.organ);
+  const bar=ORGANS.filter(x=>x.vol).map(x=>`<button style="flex:${x.vol};background:${x.col}" data-organ="${x.id}" aria-pressed="${S.organ===x.id}">${esc(x.court)}<br>${x.vol} %</button>`).join("");
+  return `<div class="card"><div class="eyebrow">Le voyage d'une bouchée</div><h1>Un herbivore… avec un tout petit estomac</h1>
+    <p>Le cheval digère les fibres comme la vache, mais pas au même endroit : chez lui, c'est le <strong>gros intestin</strong> qui fait le travail. Choisissez une étape pour voir ce qui s'y passe et ce que ça change pour vous.</p>
+    <div class="small muted">Part de chaque organe dans le volume du tube digestif</div>
+    <div class="tract">${bar}</div>
+    <div class="small muted">Pour comparer : chez la vache, l'estomac (panse) représente environ 71 % du volume digestif.</div>
+    <div class="organs">${ORGANS.map(x=>`<button data-organ="${x.id}" aria-pressed="${S.organ===x.id}">${esc(x.nom)}</button>`).join("")}</div></div>
+  <div class="card" style="border-top:5px solid ${o.col}"><h2>${esc(o.nom)}</h2>
+    <div class="stack" style="display:grid;gap:8px">${o.facts.map(([k,v])=>`<div class="fact"><span class="k">${esc(k)}</span><span>${esc(v)}</span></div>`).join("")}</div>
+    <div class="manager"><strong>Pour un gérant :</strong> ${esc(o.gerant)}</div>
+    <div class="row">${prevNext()}</div></div>
+  <div class="card"><div class="eyebrow">En une phrase</div><p>Le cheval est fait pour manger <strong>des fibres, en petites quantités, toute la journée</strong>. Presque tous les problèmes digestifs viennent d'un écart à cette règle : jeûne trop long, trop de céréales d'un coup, changement brutal.</p></div>`;
+}
+function prevNext(){ const i=ORGANS.findIndex(x=>x.id===S.organ);
+  return `${i>0?`<button class="btn" data-organ="${ORGANS[i-1].id}">← ${esc(ORGANS[i-1].nom)}</button>`:""}${i<ORGANS.length-1?`<button class="btn primary" data-organ="${ORGANS[i+1].id}">${esc(ORGANS[i+1].nom)} →</button>`:`<button class="btn primary" data-tab="simu">Passer aux simulations →</button>`}`; }
+
+/* ---------- Simulation 1 : mâcher ---------- */
+function simMast(){
+  const f=S.mast.foin, c=S.mast.conc;
+  const min=f*40+c*10, coups=f*3500+c*1000;
+  const hh=Math.floor(min/60), mm=Math.round(min%60);
+  const pctFoin=min? Math.round(f*40/min*100):0;
+  let vd, cls;
+  if(f<4){ cls="r"; vd="Très peu de fourrage : le cheval mâche peu, salive peu et reste longtemps l'estomac vide."; }
+  else if(min<360){ cls="o"; vd="Le cheval passe moins de 6 heures à mâcher : il risque de s'ennuyer (tics, bois rongé) et son estomac est moins protégé."; }
+  else { cls="v"; vd="Le cheval passe de longues heures à mâcher : il salive beaucoup, son estomac est protégé et il est occupé."; }
+  return `<div class="card sim"><div class="eyebrow">Simulation 1</div><h2>Mâcher, c'est protéger</h2>
+    <p class="muted">Réglez la ration quotidienne d'un cheval (en kg de matière sèche) et regardez combien de temps il passe à mâcher.</p>
+    <label for="r-foin">Foin : <span class="num">${fr(f)} kg</span> par jour</label><input type="range" id="r-foin" min="0" max="15" step="1" value="${f}" data-mast="foin">
+    <label for="r-conc">Granulés ou céréales : <span class="num">${fr(c)} kg</span> par jour</label><input type="range" id="r-conc" min="0" max="8" step="0.5" value="${c}" data-mast="conc">
+    <div class="out">
+      <div class="tile"><div class="v">${hh} h ${String(mm).padStart(2,"0")}</div><div class="l">de mastication par jour</div></div>
+      <div class="tile"><div class="v">${fr(coups)}</div><div class="l">coups de mâchoire</div></div>
+      <div class="tile"><div class="v">${pctFoin} %</div><div class="l">du temps de mastication vient du foin</div></div>
+    </div>
+    <div class="verdict ${cls}">${cls==="v"?"✓":cls==="o"?"!":"✕"} ${esc(vd)}</div>
+    <p class="small muted">Repères du cours : 1 kg de MS de foin = 40 min et 3 000 à 4 000 coups de mâchoire ; 1 kg de MS de granulés = 10 min et 1 000 coups. La salive n'est produite que pendant la mastication.</p></div>`;
+}
+
+/* ---------- Simulation 2 : la journée de l'estomac ---------- */
+function dayStats(){
+  const d=S.day; let maxGap=0, gapStart=-1;
+  if(d.every(x=>!x.hay)) maxGap=24;
+  else { for(let s=0;s<24;s++){ if(d[s].hay) continue; if(d[(s+23)%24].hay){ let n=0; while(!d[(s+n)%24].hay&&n<24) n++; if(n>maxGap){maxGap=n;gapStart=s;} } } }
+  const concNoHay=d.map((x,h)=>x.conc&&!x.hay&&!d[(h+23)%24].hay?h:null).filter(x=>x!==null);
+  const nConc=d.filter(x=>x.conc).length, nHay=d.filter(x=>x.hay).length;
+  /* zone de pH estimée heure par heure : foin dans l'heure ou l'heure précédente = protégé ; sinon exposé */
+  const ph=d.map((x,h)=>{ if(x.hay) return "v"; if(d[(h+23)%24].hay) return "v"; let k=0; while(k<24&&!d[(h-k+24)%24].hay) k++; return k>=4?"r":"o"; });
+  return {maxGap,gapStart,concNoHay,nConc,nHay,ph};
+}
+function simJournee(){
+  const st=dayStats(), d=S.day;
+  let cls="v", msg="Le fourrage est bien réparti : l'estomac reste protégé toute la journée.";
+  const pb=[];
+  if(st.maxGap>4) pb.push(`la plus longue période sans fourrage dure ${st.maxGap} h (repère : 3 à 4 h au maximum)`);
+  if(st.concNoHay.length) pb.push(`${st.concNoHay.length>1?"des repas":"un repas"} de granulés sans foin juste avant (${st.concNoHay.map(h=>h+" h").join(", ")}) : ils tombent dans l'acide`);
+  if(pb.length){ cls=(st.maxGap>8||st.concNoHay.length>1)?"r":"o"; msg="Attention : "+pb.join(" ; ")+"."; }
+  const cells=d.map((x,h)=>`<div class="h"><button class="${(x.hay?"hay ":"")+(x.conc?"conc":"")}" data-hour="${h}" aria-label="${h} h : ${x.hay?"foin":"pas de foin"}${x.conc?", granulés":""}" title="${h} h">${x.conc?"G":""}</button><div class="ph" style="background:var(--${st.ph[h]==="v"?"ok":st.ph[h]==="o"?"warn":"bad"})"></div><div class="lbl">${h%3===0?h:""}</div></div>`).join("");
+  return `<div class="card sim"><div class="eyebrow">Simulation 2</div><h2>La journée de l'estomac</h2>
+    <p class="muted">Organisez la journée d'un cheval au box. Choisissez un outil, puis touchez les heures : la ligne de couleur sous chaque heure montre si la partie fragile de l'estomac est protégée.</p>
+    <div class="row"><button class="btn" data-tool="hay" aria-pressed="${S.tool!=="conc"}">Foin disponible</button><button class="btn" data-tool="conc" aria-pressed="${S.tool==="conc"}">Repas de granulés</button>
+      <span class="spacer" style="flex:1"></span><button class="btn" data-preset="box">Box classique</button><button class="btn" data-preset="ideal">Foin à volonté</button><button class="btn" data-preset="clear">Tout effacer</button></div>
+    <div class="day">${cells}</div>
+    <div class="legend"><span><i class="sw" style="background:var(--li)"></i>foin disponible</span><span><i class="sw" style="background:var(--stom)"></i>G = repas de granulés (moitié verte : avec du foin)</span><span><i class="sw" style="background:var(--ok)"></i>estomac protégé (pH 5 à 7)</span><span><i class="sw" style="background:var(--warn)"></i>protection qui baisse</span><span><i class="sw" style="background:var(--bad)"></i>exposé à l'acide (pH 3 à 4)</span></div>
+    <div class="out">
+      <div class="tile"><div class="v">${st.maxGap} h</div><div class="l">plus longue période sans fourrage</div></div>
+      <div class="tile"><div class="v">${st.nHay} h</div><div class="l">avec du foin disponible</div></div>
+      <div class="tile"><div class="v">${st.nConc}</div><div class="l">repas de granulés</div></div>
+    </div>
+    <div class="verdict ${cls}">${cls==="v"?"✓":cls==="o"?"!":"✕"} ${esc(msg)}</div>
+    <p class="small muted">Modèle simplifié pour la révision : on considère l'estomac protégé pendant l'heure où le foin est disponible et l'heure suivante. Repères du cours : avec du foin, la zone haute de l'estomac reste vers pH 5 à 7 ; sans foin, elle descend vers pH 3 à 4.</p></div>`;
+}
+
+/* ---------- Simulation 3 : l'amidon par repas ---------- */
+const FEEDS={orge:["Orge",52],avoine:["Avoine",40],mais:["Maïs",65],floc:["Aliment floconné (exemple)",30],gran:["Granulé sport (exemple)",25],fibre:["Aliment riche en fibres (exemple)",10],perso:["Mon aliment (lire l'étiquette)",null]};
+function simAmidon(){
+  const a=S.amid, pct=a.feed==="perso"?a.pct:FEEDS[a.feed][1];
+  const gMeal=a.kg*1000*pct/100, per100=gMeal/(a.pv/100);
+  const need=Math.max(1,Math.ceil(per100/100));
+  const pos=Math.min(100,per100/400*100);
+  let cls, msg;
+  if(per100<=100){ cls="v"; msg="Le repas respecte le repère du cours : l'amidon peut être digéré avant d'arriver dans le gros intestin."; }
+  else if(per100<=200){ cls="o"; msg=`Au-delà du repère du cours. Une partie de l'amidon risque d'arriver dans le gros intestin. Répartir la même quantité en ${need} repas ramènerait chaque repas sous le repère.`; }
+  else { cls="r"; msg=`Repas beaucoup trop riche : l'amidon non digéré fermente dans le gros intestin (acidité, acide lactique, risque de coliques et de fourbure). Il faudrait au moins ${need} repas, ou un autre aliment.`; }
+  return `<div class="card sim"><div class="eyebrow">Simulation 3</div><h2>Combien d'amidon dans ce repas ?</h2>
+    <p class="muted">L'intestin grêle du cheval digère mal l'amidon (céréales). Calculez la quantité apportée par un repas et comparez-la au repère du cours : <strong>100 g d'amidon pour 100 kg de poids vif, par repas, au maximum</strong>.</p>
+    <label for="a-pv">Poids du cheval : <span class="num">${fr(a.pv)} kg</span></label><input type="range" id="a-pv" min="200" max="800" step="10" value="${a.pv}" data-amid="pv">
+    <label for="a-feed">Aliment</label><select id="a-feed" data-amid="feed">${Object.entries(FEEDS).map(([k,[n,p]])=>`<option value="${k}" ${a.feed===k?"selected":""}>${esc(n)}${p!=null?" · environ "+p+" % d'amidon":""}</option>`).join("")}</select>
+    ${a.feed==="perso"?`<label for="a-pct">Taux d'amidon indiqué sur l'étiquette : <span class="num">${fr(a.pct)} %</span></label><input type="range" id="a-pct" min="0" max="70" step="1" value="${a.pct}" data-amid="pct">`:""}
+    <label for="a-kg">Quantité par repas : <span class="num">${fr(a.kg,1)} kg</span></label><input type="range" id="a-kg" min="0" max="5" step="0.25" value="${a.kg}" data-amid="kg">
+    <div class="out">
+      <div class="tile"><div class="v">${fr(gMeal)} g</div><div class="l">d'amidon dans le repas</div></div>
+      <div class="tile"><div class="v">${fr(per100)} g</div><div class="l">pour 100 kg de poids vif</div></div>
+    </div>
+    <div class="gauge" role="img" aria-label="${fr(per100)} grammes pour 100 kilos"><span class="needle" style="left:${pos}%"></span></div>
+    <div class="gauge-l"><span>0</span><span>100 · repère du cours</span><span>200</span><span>400 g/100 kg</span></div>
+    <div class="verdict ${cls}">${cls==="v"?"✓":cls==="o"?"!":"✕"} ${esc(msg)}</div>
+    <p class="small muted">Taux d'amidon indicatifs, qui varient selon les lots : lisez toujours l'étiquette. Dans une étude citée au cours, un repas de 340 g d'amidon pour 100 kg de poids vif a fait baisser le pH du caecum et du côlon vers 6,5 et augmenter fortement l'acide lactique.</p></div>`;
+}
+function viewSimu(){
+  const tabs=[["journee","La journée de l'estomac"],["mast","Mâcher"],["amidon","L'amidon"]];
+  return `<div class="card"><div class="eyebrow">Simulations</div><h1>Testez vos décisions de gérant</h1><div class="row">${tabs.map(([k,l])=>`<button class="btn" data-sim="${k}" aria-pressed="${S.sim===k}">${l}</button>`).join("")}</div></div>
+    ${S.sim==="mast"?simMast():S.sim==="amidon"?simAmidon():simJournee()}`;
+}
+
+/* ---------- Quiz ---------- */
+function newQuiz(){ S.quiz={order:shuffle(QUIZ.map((_,i)=>i)), i:0, score:0, ans:null, opts:null}; prepQ(); }
+function prepQ(){ const q=QUIZ[S.quiz.order[S.quiz.i]]; S.quiz.opts=shuffle(q.o.map((t,k)=>k)); S.quiz.ans=null; }
+function viewQuiz(){
+  if(!S.quiz) return `<div class="card"><div class="eyebrow">Quiz</div><h1>${QUIZ.length} questions pour vérifier l'essentiel</h1><p>Questions tirées dans un ordre aléatoire, avec une explication après chaque réponse.</p>${S.best?`<p class="muted">Votre meilleur score sur cet appareil : ${S.best} / ${QUIZ.length}</p>`:""}<div class="row"><button class="btn primary" data-quiz="start">Commencer</button></div></div>`;
+  const z=S.quiz;
+  if(z.i>=QUIZ.length){ const p=z.score/QUIZ.length;
+    return `<div class="card"><div class="eyebrow">Résultat</div><h1>${z.score} / ${QUIZ.length}</h1><p>${p>=0.8?"Très bien : vous avez les bons réflexes de gérant.":p>=0.5?"Pas mal. Revoyez « Le parcours » pour les points manqués.":"Reprenez « Le parcours » étape par étape, puis réessayez."}</p><div class="row"><button class="btn primary" data-quiz="start">Recommencer</button><button class="btn" data-tab="parcours">Revoir le parcours</button></div></div>`; }
+  const q=QUIZ[z.order[z.i]];
+  return `<div class="card"><div class="row"><div class="eyebrow">Question ${z.i+1} sur ${QUIZ.length}</div><span style="flex:1"></span><span class="muted small">Score : ${z.score}</span></div>
+    <div class="prog"><i style="width:${z.i/QUIZ.length*100}%"></i></div>
+    <h2>${esc(q.q)}</h2>
+    <div style="display:grid;gap:8px">${z.opts.map(k=>{ let c=""; if(z.ans!=null){ if(k===q.a) c="good"; else if(k===z.ans) c="badc"; }
+      return `<button class="opt ${c}" data-opt="${k}" ${z.ans!=null?"disabled":""}>${esc(q.o[k])}</button>`; }).join("")}</div>
+    ${z.ans!=null?`<div class="verdict ${z.ans===q.a?"v":"r"}">${z.ans===q.a?"✓ Bonne réponse.":"✕ Pas tout à fait."} <span>${esc(q.x)}</span></div><div class="row"><button class="btn primary" data-quiz="next">${z.i<QUIZ.length-1?"Question suivante →":"Voir mon score"}</button></div>`:""}</div>`;
+}
+
+/* ---------- Fiches ---------- */
+function viewFiches(){
+  return `<div class="card"><div class="eyebrow">Fiches de révision</div><h1>Neuf cartes à retourner</h1><p class="muted">Essayez de vous rappeler ce que vous savez sur chaque partie, puis touchez la carte pour vérifier.</p><div class="row"><button class="btn" data-flipall="1">Tout retourner</button><button class="btn" data-flipall="0">Tout cacher</button></div></div>
+    <div class="cards">${RECAP.map(([t,b],i)=>S.flipped[i]?`<button class="flip" data-flip="${i}"><h3>${esc(t)}</h3><p>${esc(b)}</p></button>`:`<button class="flip front" data-flip="${i}"><h3>${esc(t)}</h3><span class="muted small">Toucher pour retourner</span></button>`).join("")}</div>
+    <div class="card"><div class="eyebrow">Les trois chiffres du module</div><ul class="clean"><li>Au moins <strong>1,5 kg de matière sèche de fourrage pour 100 kg de poids vif</strong> par jour.</li><li>Au plus <strong>100 g d'amidon pour 100 kg de poids vif par repas</strong>.</li><li>Le rapport <strong>calcium / phosphore</strong> de la ration (toujours plus de calcium que de phosphore).</li></ul></div>`;
+}
+
+/* ======================= RENDU ET ÉVÉNEMENTS ======================= */
+function render(){
+  renderTabs();
+  $("app").innerHTML = S.tab==="simu"?viewSimu():S.tab==="quiz"?viewQuiz():S.tab==="fiches"?viewFiches():viewParcours();
+}
+function rerenderKeepFocus(id){ render(); const el=$(id); if(el) el.focus(); }
+document.addEventListener("click",ev=>{
+  const b=ev.target.closest("button"); if(!b) return;
+  const d=b.dataset;
+  if(d.tab){ S.tab=d.tab; render(); window.scrollTo(0,0); return; }
+  if(d.organ){ S.organ=d.organ; render(); return; }
+  if(d.sim){ S.sim=d.sim; render(); return; }
+  if(d.tool){ S.tool=d.tool; render(); return; }
+  if(d.hour!=null){ const h=+d.hour, x=S.day[h]; if(S.tool==="conc") x.conc=!x.conc; else x.hay=!x.hay; LS.set("rev-day",S.day); render(); return; }
+  if(d.preset){ if(d.preset==="box") S.day=defaultDay(); else if(d.preset==="ideal"){ S.day=Array.from({length:24},()=>({hay:true,conc:false})); S.day[7].conc=true; S.day[18].conc=true; } else S.day=Array.from({length:24},()=>({hay:false,conc:false})); LS.set("rev-day",S.day); render(); return; }
+  if(d.quiz==="start"){ newQuiz(); render(); return; }
+  if(d.quiz==="next"){ S.quiz.i++; if(S.quiz.i<QUIZ.length) prepQ(); else if(S.quiz.score>S.best){ S.best=S.quiz.score; LS.set("rev-best",S.best); } render(); window.scrollTo(0,0); return; }
+  if(d.opt!=null && S.quiz && S.quiz.ans==null){ S.quiz.ans=+d.opt; if(S.quiz.ans===QUIZ[S.quiz.order[S.quiz.i]].a) S.quiz.score++; render(); return; }
+  if(d.flip!=null){ S.flipped[d.flip]=!S.flipped[d.flip]; render(); return; }
+  if(d.flipall!=null){ RECAP.forEach((_,i)=>S.flipped[i]=d.flipall==="1"); render(); return; }
+});
+document.addEventListener("input",ev=>{
+  const el=ev.target, d=el.dataset;
+  if(d.mast){ S.mast[d.mast]=+el.value; rerenderKeepFocus(el.id); }
+  else if(d.amid){ S.amid[d.amid]= d.amid==="feed"? el.value : +el.value; rerenderKeepFocus(el.id); }
+});
+render();
+</script>
+</body>
+</html>
