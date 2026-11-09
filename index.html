@@ -375,7 +375,7 @@ const LIGHT = {
 const S = {
   route:"", me:null, tab:"seance", mine:null,
   state:{step:"accueil", assign:DEFAULT_ASSIGN, corrige:false, revealIns:false, scribe:"margaux", groupAns:["","","",""], achatQ:0, ticketReveal:false, session:"S1", t:0},
-  stateKnown:false, autonome:true,
+  stateKnown:false, autonome:false,
   answers:{}, presenceAns:{}, peers:[],
   db:null, room:null, user:null, isTeacher:false, dbWritable:null,
   dbLive:false, roomLive:false, proj:false, confirmReset:false
@@ -532,7 +532,6 @@ async function boot(){
   S.me = LS.get("mesb-me");
   if(S.me && !KEYS.includes(S.me)) S.me=null;
   S.route = location.hash.replace("#","");
-  { const st=LS.get("mesb-step"); if(st&&STEP_IDX[st]!=null) S.state.step=st; }
   if(S.me) loadMine();
   { const pkt=LS.get("mesb-local"); if(pkt&&pkt.state){ const st=sanitizeState(pkt.state); if(st){ S.state=st; S.stateKnown=true; } if(pkt.answers) for(const k of KEYS){ const a=sanitizeAns(pkt.answers[k]); if(a) S.answers[k]=a; } } }
   try{ chan&&chan.postMessage({req:1}); }catch(e){}
@@ -557,7 +556,7 @@ async function boot(){
       clearTimeout(stateTimer);
       if(!snap.metadata.fromCache) S.dbLive=true;
       if(snap.exists) receiveState(snap.data());
-      else { S.stateKnown=true; render(); }
+      else { S.stateKnown=true; if(S.isTeacher) setState({}); render(); }
     }, ()=>{ S.dbLive=false; render(); });
     db.collection("answers").onSnapshot(snap=>{
       const m={};
@@ -697,7 +696,7 @@ function studentSeance(){
   const autonomeBar = S.autonome?`<div class="banner"><strong>Où en est la séance ?</strong> Choisissez l'étape annoncée par Morgane. <div class="steps" style="margin-top:8px">${STEPS.map(s=>`<button data-action="auto-step" data-step="${s.id}" ${s.id===st?'aria-current="step"':""}>${esc(s.label)}</button>`).join("")}</div></div>`:"";
   let body="";
   switch(st){
-    case "accueil": body=`<div class="card"><div class="eyebrow">Bienvenue ${esc(FIRST(S.me))}</div><h1>La séance va commencer</h1><p>${S.autonome?"Quand Morgane change d'étape, choisissez la même étape dans la liste ci-dessus.":"Cette page avance toute seule quand Morgane change d'étape."} En attendant, vous pouvez parcourir le ${`<button class="term" data-action="tab" data-tab="lexique">lexique</button>`}.</p></div>`; break;
+    case "accueil": body=`<div class="card"><div class="eyebrow">Bienvenue ${esc(FIRST(S.me))}</div><h1>La séance va commencer</h1><p>${S.stateKnown?"Cette page avance toute seule quand Morgane change d'étape.":"Connexion en cours… La page avancera toute seule quand Morgane lancera la séance."} En attendant, vous pouvez parcourir le ${`<button class="term" data-action="tab" data-tab="lexique">lexique</button>`}.</p></div>`; break;
     case "accroche": body=`<div class="card hl"><div class="eyebrow">Accroche</div><h2>Vous achetez du foin pour votre écurie. Comment savez-vous qu'il est bon ?</h2>
       <p class="muted small">Plusieurs réponses possibles.</p>
       <div class="stack">${ACCROCHE.map((o,i)=>`<button class="btn" data-action="vote" data-i="${i}" aria-pressed="${m.v.includes(i)}">${esc(o)}</button>`).join("")}</div>
@@ -831,7 +830,7 @@ async function teacherLogin(){
   try{
     const auth=firebase.auth(), prov=new firebase.auth.GoogleAuthProvider();
     await auth.signInWithPopup(prov);
-    if(isTeacherUser(auth.currentUser)){ S.isTeacher=true; S.route="prof"; }
+    if(isTeacherUser(auth.currentUser)){ S.isTeacher=true; S.route="prof"; setState({}); }
     else { S.codeErr="Ce compte Google n'est pas celui de l'enseignante."; await auth.signOut(); await auth.signInAnonymously(); }
   }catch(e){ S.codeErr="Connexion impossible : "+(e&&e.message||e); }
   render();
