@@ -5,7 +5,7 @@ service cloud.firestore {
     // Remplacer par l'adresse Google de l'enseignante (la même que TEACHER_EMAIL dans index.html)
     function isTeacher() {
       return request.auth != null
-        && request.auth.token.email == "ADRESSE-GOOGLE-DE-L-ENSEIGNANTE@gmail.com"
+        && request.auth.token.email == "morgane.robles@unilasalle.fr"
         && request.auth.token.email_verified == true;
     }
 
