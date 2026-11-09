@@ -593,9 +593,9 @@ async function boot(){
       firebase.initializeApp(FIREBASE_CONFIG);
       const auth=firebase.auth();
       const u=await new Promise(res=>{ const off=auth.onAuthStateChanged(x=>{ off(); res(x); }); });
-      if(!u) await auth.signInAnonymously();
-      S.isTeacher = isTeacherUser(auth.currentUser);
       db=firebase.firestore();
+      if(!u){ try{ await auth.signInAnonymously(); }catch(e){ console.error(e); S.fbErr="connexion anonyme refusée : activez le fournisseur Anonyme dans Firebase Authentication"; } }
+      S.isTeacher = isTeacherUser(auth.currentUser);
     }catch(e){ console.error(e); S.fbErr=String(e&&e.message||e); }
   } else S.fbErr="config";
   S.db=db; S.room=room; S.user=user;
@@ -854,7 +854,7 @@ function teacherView(partsOnly){
   return `<header class="topbar"><div class="in"><span class="brand">Trois bottes · Espace enseignante</span><span class="pill"><span class="dot ${live?"on":""}"></span>${live?"En direct":"Hors ligne"}</span><span class="spacer"></span>
     <a class="btn primary" href="#projection" target="_blank" rel="noopener" style="text-decoration:none">Projeter dans une nouvelle fenêtre</a><button class="btn" data-action="proj">Projeter ici</button><button class="btn ghost" data-action="route" data-r="etudiant">Vue étudiant</button><button class="btn ghost" data-action="logout">Verrouiller</button></div></header>
   <main class="wrap">
-    ${!S.db?`<div class="banner bad">Firebase n'est pas joignable (${esc(S.fbErr||"")}) : les réponses des téléphones n'arrivent pas. Les codes et la saisie manuelle restent possibles.</div>`:""}
+    ${(!S.db||S.fbErr)?`<div class="banner bad">Problème Firebase (${esc(S.fbErr||"base injoignable")}) : les réponses des téléphones risquent de ne pas arriver. Les codes et la saisie manuelle restent possibles.</div>`:""}
     ${controls}
     ${entry}
     <div class="card"><div class="eyebrow">Suivi des étudiants</div>${prog}</div>
