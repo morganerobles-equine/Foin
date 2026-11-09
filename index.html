@@ -682,7 +682,7 @@ function stageContent(forProj, preview){
     case "achat": { const q=S.state.achatQ||0, sc=S.state.scribe, ga0=ansOf(sc), ga={a:[0,1,2,3].map(i=>(S.state.groupAns&&S.state.groupAns[i])||(ga0&&ga0.a[i])||"")};
       return `<div class="card"><div class="eyebrow">Mise en situation · question ${q+1} sur 4 · réponse commune</div><h1>${esc(ACHAT[q].q)}</h1>
         <p class="muted">Vous formez l'équipe de direction d'une écurie qui héberge les 5 chevaux. Le fournisseur propose le lot entier : A, B et C.</p>
-        <div class="reveal"><div class="small muted">Réponse du groupe</div><div style="white-space:pre-wrap">${ga&&ga.a[q]?esc(ga.a[q]):`<span class="muted">pas encore de réponse</span>`}</div></div>
+        <div class="reveal"><div class="small muted">Réponse du groupe · secrétaire : ${esc(NAME[sc])}</div><div style="white-space:pre-wrap">${ga&&ga.a[q]?esc(ga.a[q]):`<span class="muted">pas encore de réponse</span>`}</div></div>
         ${cor?`<div class="banner"><strong>Éléments attendus</strong><ul class="clean">${ACHAT[q].hint.map(h=>`<li>${esc(h)}</li>`).join("")}</ul></div>`:""}</div>`; }
     case "cloture": return `<div class="card"><div class="eyebrow">Clôture</div><h1>Trois choses à retenir</h1><ol class="clean">${MESSAGES.map(m=>`<li class="big-msg">${esc(m)}</li>`).join("")}</ol></div>
         <div class="card"><h2>Ticket de sortie : ce fourrage affiche 82 % de MS</h2>${ticketResults(S.state.ticketReveal)}</div>`;
@@ -783,7 +783,7 @@ function teacherView(partsOnly){
       <td>${a?a.a.filter(Boolean).length:0}/4</td><td>${a&&a.k.f&&a.k.e?"✓":"·"}</td></tr>`;}).join("")}
     </tbody></table></div>`;
   const extra = st==="revelation" ? `<div class="row"><button class="btn" data-action="reveal-ins" aria-pressed="${S.state.revealIns}">${S.state.revealIns?"Encarts affichés (Caramel, Tornade, colonne B)":"Afficher les encarts (Caramel, Tornade, colonne B)"}</button></div>`
-    : st==="achat" ? `<div class="row"><label for="f-scribe">Secrétaire du groupe :</label><select id="f-scribe" data-action="scribe" style="width:auto">${KEYS.map(k=>`<option value="${k}" ${S.state.scribe===k?"selected":""}>${esc(NAME[k])}</option>`).join("")}</select></div><div class="row"><span>Question projetée :</span>${ACHAT.map((x,j)=>`<button class="btn small" data-action="achatq" data-q="${j}" aria-pressed="${S.state.achatQ===j}">Q${j+1}</button>`).join("")}</div>`
+    : st==="achat" ? `<div class="row"><label for="f-scribe">Secrétaire du groupe :</label><select id="f-scribe" data-action="scribe" style="width:auto">${KEYS.map(k=>`<option value="${k}" ${S.state.scribe===k?"selected":""}>${esc(NAME[k])}</option>`).join("")}</select><button class="btn" data-action="scribe-random">Tirer au sort</button></div><div class="row"><span>Question projetée :</span>${ACHAT.map((x,j)=>`<button class="btn small" data-action="achatq" data-q="${j}" aria-pressed="${S.state.achatQ===j}">Q${j+1}</button>`).join("")}</div>`
     : st==="cloture" ? `<div class="row"><button class="btn" data-action="ticket-reveal" aria-pressed="${S.state.ticketReveal}">${S.state.ticketReveal?"Réponse du ticket affichée":"Afficher la réponse du ticket"}</button></div>` : "";
   const notes = {
     accueil:"Les étudiants ouvrent le lien et choisissent leur nom. Les points verts indiquent qui est connecté.",
@@ -924,6 +924,7 @@ document.addEventListener("click", ev=>{
     case "fullscreen": try{ const p=document.documentElement.requestFullscreen(); if(p&&p.catch) p.catch(()=>{}); }catch(e){} break;
     case "reset": S.confirmReset=true; render(); break;
     case "drawer": S.drawer=!S.drawer; render(); break;
+    case "scribe-random": { const pool=KEYS.filter(k=>k!==S.state.scribe); setState({scribe:pool[Math.floor(Math.random()*pool.length)]}); break; }
     case "tedit": { const k=b.dataset.k, fld=b.dataset.field, c=b.dataset.c, f=currentFoin();
       teacherEdit(k, a=>{
         if(fld==="v"){ const i=+c; a.v=a.v.includes(i)?a.v.filter(x=>x!==i):a.v.concat(i).sort(); }
