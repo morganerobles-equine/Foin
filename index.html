@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trois bottes · MS MESB</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Source+Sans+3:wght@400;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+/* Mise en page : une fiche de labo posée sur une table de prairie ; vert pré pour l'action, paille pour les repères, feux tricolores réservés aux verdicts. */
+:root{
+  --paper:#f3f5ef; --surface:#ffffff; --ink:#1b2a21; --muted:#5a685f; --line:#d6ddd2;
+  --accent:#2c6a43; --accent-ink:#ffffff; --hay:#b8901c; --hay-soft:#f6eccb;
+  --ok:#2b7a4b; --ok-soft:#dff0e5; --warn:#b86a00; --warn-soft:#fbe9cc; --bad:#b83226; --bad-soft:#f8dcd8;
+  --font-display:"Bricolage Grotesque", "Avenir Next", "Segoe UI", sans-serif;
+  --font-body:"Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --font-mono:"IBM Plex Mono", ui-monospace, Menlo, monospace;
+  --r:10px; color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#111713; --surface:#18211b; --ink:#e4ebe5; --muted:#9aa99f; --line:#2b372f;
+    --accent:#5fb882; --accent-ink:#0e1a12; --hay:#d9b84f; --hay-soft:#2e2814;
+    --ok:#5cc086; --ok-soft:#173222; --warn:#eea43c; --warn-soft:#382711; --bad:#ef7466; --bad-soft:#3b1b18;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#111713; --surface:#18211b; --ink:#e4ebe5; --muted:#9aa99f; --line:#2b372f;
+  --accent:#5fb882; --accent-ink:#0e1a12; --hay:#d9b84f; --hay-soft:#2e2814;
+  --ok:#5cc086; --ok-soft:#173222; --warn:#eea43c; --warn-soft:#382711; --bad:#ef7466; --bad-soft:#3b1b18;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--font-body);font-size:17px;line-height:1.45}
+h1,h2,h3{font-family:var(--font-display);line-height:1.15;text-wrap:balance;margin:0}
+h1{font-size:1.7rem;font-weight:800} h2{font-size:1.3rem;font-weight:800} h3{font-size:1.05rem;font-weight:600}
+p{margin:0}
+button,select,textarea,input{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--hay);outline-offset:2px}
+.wrap{max-width:980px;margin:0 auto;padding:16px;display:grid;gap:16px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:grid;gap:12px}
+.card.hl{border-color:var(--hay);box-shadow:0 0 0 2px var(--hay-soft)}
+.muted{color:var(--muted)}
+.small{font-size:.88rem}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.stack{display:grid;gap:8px}
+.eyebrow{font-size:.78rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--hay)}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:9px 14px;font-weight:600}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.ghost{background:transparent}
+.btn.danger{color:var(--bad);border-color:var(--bad)}
+.btn[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.topbar{position:sticky;top:0;z-index:5;background:var(--surface);border-bottom:1px solid var(--line)}
+.topbar .in{max-width:980px;margin:0 auto;padding:10px 16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.brand{font-family:var(--font-display);font-weight:800;font-size:1.05rem}
+.spacer{flex:1}
+.pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:3px 10px;font-size:.82rem;font-weight:600;border:1px solid var(--line);background:var(--paper)}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--muted);display:inline-block}
+.dot.on{background:var(--ok)}
+.tabs{position:sticky;bottom:0;z-index:5;background:var(--surface);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr)}
+.tabs button{border:0;background:transparent;padding:10px 4px;font-size:.8rem;font-weight:600;color:var(--muted);border-top:3px solid transparent}
+.tabs button[aria-selected="true"]{color:var(--accent);border-top-color:var(--accent)}
+.names{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}
+.names button{text-align:left;padding:14px 16px;border-radius:var(--r);border:1px solid var(--line);background:var(--surface);font-weight:600;font-size:1.05rem}
+.names button:hover{border-color:var(--accent)}
+/* feux */
+.chip{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:3px 10px;font-weight:700;font-size:.85rem;border:1.5px solid currentColor;white-space:nowrap}
+.chip.v{color:var(--ok);background:var(--ok-soft)} .chip.o{color:var(--warn);background:var(--warn-soft)} .chip.r{color:var(--bad);background:var(--bad-soft)}
+.chip.none{color:var(--muted);background:transparent;border-style:dashed}
+.lights{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.light{border-radius:var(--r);border:2px solid var(--line);background:var(--surface);padding:12px 8px;font-weight:700;display:grid;gap:2px;justify-items:center;text-align:center}
+.light .ic{font-size:1.3rem;line-height:1}
+.light.v{color:var(--ok)} .light.o{color:var(--warn)} .light.r{color:var(--bad)}
+.light[aria-pressed="true"].v{background:var(--ok-soft);border-color:var(--ok)}
+.light[aria-pressed="true"].o{background:var(--warn-soft);border-color:var(--warn)}
+.light[aria-pressed="true"].r{background:var(--bad-soft);border-color:var(--bad)}
+.light .sub{font-size:.78rem;font-weight:600;color:var(--muted)}
+textarea,input[type=text],input[type=password],select{width:100%;border:1px solid var(--line);border-radius:8px;background:var(--paper);padding:9px 11px}
+textarea{min-height:64px;resize:vertical}
+label.lbl{font-weight:600;font-size:.92rem}
+/* fiche labo */
+.fiche{border:1px solid var(--line);border-radius:var(--r);overflow:hidden;background:var(--surface)}
+.fiche-head{display:flex;justify-content:space-between;gap:10px;padding:10px 14px;background:var(--hay-soft);border-bottom:1px solid var(--line);flex-wrap:wrap}
+.fiche-head .code{font-family:var(--font-mono);font-size:.82rem;color:var(--muted)}
+.fiche table{width:100%;border-collapse:collapse}
+.fiche td,.fiche th{padding:7px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
+.fiche th{font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700}
+.fiche td.val{font-family:var(--font-mono);font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap;font-size:1rem}
+.fiche td.unit{color:var(--muted);font-size:.82rem;white-space:nowrap}
+.fiche tr.mine td{background:var(--hay-soft)}
+.fiche tr.mine td:first-child{box-shadow:inset 4px 0 0 var(--hay)}
+.fiche tr.group td{background:var(--paper);font-size:.78rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;padding:5px 12px}
+.fiche tr.other td{color:var(--muted)}
+.term{border:0;background:none;padding:0;color:inherit;font-weight:600;text-decoration:underline dotted var(--hay);text-decoration-thickness:2px;text-underline-offset:3px;text-align:left}
+.term::after{content:" ⓘ";color:var(--hay);font-size:.85em}
+/* matrice */
+.mx{width:100%;border-collapse:separate;border-spacing:6px}
+.mx th{font-size:.82rem;color:var(--muted);text-align:left;font-weight:700}
+.mx th.c{text-align:center}
+.mx td{background:var(--paper);border-radius:8px;padding:8px;vertical-align:middle}
+.mx td.cell{text-align:center;min-width:90px}
+.mx .who{font-weight:700} .mx .what{font-size:.8rem;color:var(--muted)}
+.exp{font-size:.75rem;color:var(--muted);margin-top:4px}
+.grid2{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.tbl{overflow-x:auto}
+.tbl table{border-collapse:collapse;width:100%;font-size:.9rem}
+.tbl th,.tbl td{border-bottom:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+.tbl th{font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.steps{display:flex;gap:6px;flex-wrap:wrap}
+.steps button{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:6px 10px;font-size:.85rem;font-weight:600}
+.steps button[aria-current="step"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.steps button.done{color:var(--muted)}
+.banner{border-radius:var(--r);padding:10px 14px;background:var(--hay-soft);border:1px solid var(--hay);font-size:.92rem}
+.banner.bad{background:var(--bad-soft);border-color:var(--bad)}
+.big-msg{font-family:var(--font-display);font-weight:800;font-size:1.25rem}
+ul.clean{margin:0;padding-left:1.1em;display:grid;gap:4px}
+.reveal{border-left:6px solid var(--hay);padding:12px 16px;background:var(--hay-soft);border-radius:0 var(--r) var(--r) 0}
+.expert-list{display:grid;gap:8px}
+.expert-row{display:grid;grid-template-columns:1fr auto;gap:4px 10px;align-items:center;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+.expert-row .q{font-weight:700}
+.expert-row .vals{font-family:var(--font-mono);font-size:.82rem;color:var(--muted)}
+.expert-row .note{grid-column:1/-1;font-size:.88rem;color:var(--muted);font-style:italic}
+.bar{height:12px;border-radius:6px;background:var(--accent)}
+.barrow{display:grid;grid-template-columns:minmax(140px,260px) 1fr 30px;gap:10px;align-items:center}
+/* modale */
+.modal{position:fixed;inset:0;background:rgba(10,20,14,.45);display:none;align-items:flex-end;justify-content:center;z-index:50;padding:16px}
+.modal.open{display:flex}
+.modal .box{background:var(--surface);border-radius:14px;max-width:560px;width:100%;padding:18px;display:grid;gap:10px;border:1px solid var(--line);max-height:80vh;overflow:auto}
+@media (min-width:640px){.modal{align-items:center}}
+/* projection */
+body.proj{font-size:22px}
+body.proj .wrap{max-width:1400px}
+body.proj h1{font-size:2.6rem} body.proj h2{font-size:1.8rem}
+body.proj .chip{font-size:1rem;padding:5px 14px}
+body.proj .fiche td.val{font-size:1.2rem}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(560px,100vw);overflow:auto;background:var(--paper);border-left:2px solid var(--line);box-shadow:-8px 0 24px rgba(0,0,0,.18);padding:16px;display:grid;gap:12px;align-content:start;z-index:30;font-size:16px}
+.drawer h2{font-size:1.2rem}
+.drawer .chip{font-size:.78rem;padding:2px 8px}
+body.proj.has-drawer .wrap{margin-right:min(560px,100vw)}
+body.has-drawer .proj-bar{right:auto;left:12px;opacity:1}
+.proj-bar{position:fixed;right:12px;bottom:12px;display:flex;gap:8px;z-index:20;opacity:.35;transition:opacity .2s}
+.proj-bar:hover,.proj-bar:focus-within{opacity:1}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@media (max-width:520px){h1{font-size:1.4rem}.lights .sub{display:none}.mx td.cell{min-width:0}}
+</style>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+/* ======== À REMPLIR : configuration Firebase (console Firebase > Paramètres du projet > Vos applications) ======== */
+const FIREBASE_CONFIG = {
+  apiKey: "",
+  authDomain: "",
+  projectId: "",
+  storageBucket: "",
+  messagingSenderId: "",
+  appId: ""
+};
+/* Adresse Google de l'enseignante : seule elle peut piloter la séance (à reporter aussi dans les règles Firestore). */
+const TEACHER_EMAIL = "";
+</script>
+</head>
+<body>
+<div id="app"></div>
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="box">
+    <div class="row"><h2 id="modal-title"></h2><span class="spacer"></span><button class="btn ghost" data-action="close-modal" id="modal-close">Fermer</button></div>
+    <div id="modal-body" class="stack"></div>
+  </div>
+</div>
+<script>
+"use strict";
+/* ======================= CONTENU DU COURS ======================= */
+/* Code de l'espace enseignante : seule son empreinte figure ici. */
+const PROF_HASH = "277vqruvc5i";
+function hashCode(str){ let h1=0xdeadbeef^7, h2=0x41c6ce57^7; for(let i=0;i<str.length;i++){ const c=str.charCodeAt(i); h1=Math.imul(h1^c,2654435761); h2=Math.imul(h2^c,1597334677); } h1=Math.imul(h1^(h1>>>16),2246822507)^Math.imul(h2^(h2>>>13),3266489909); h2=Math.imul(h2^(h2>>>16),2246822507)^Math.imul(h1^(h1>>>13),3266489909); return (4294967296*(2097151&h2)+(h1>>>0)).toString(36); }
+const STUDENTS = [
+  {key:"margaux", name:"Margaux Boyer"},
+  {key:"valentin", name:"Valentin Marchesi"},
+  {key:"cecile", name:"Cécile Marteau"},
+  {key:"sandrine", name:"Sandrine Maury"},
+  {key:"laure", name:"Laure Meylheux"}
+];
+const KEYS = STUDENTS.map(s=>s.key);
+const NAME = Object.fromEntries(STUDENTS.map(s=>[s.key,s.name]));
+const FIRST = k => (NAME[k]||"").split(" ")[0];
+
+const HORSES = {
+  poney:{nom:"Caramel", titre:"Poney de 200 kg à risque de fourbure", court:"Poney à risque de fourbure",
+    besoins:["Peu de sucres : c'est sa priorité absolue","Pas trop d'énergie : il grossit très facilement","Des fibres, pour mâcher longtemps sans trop manger"],
+    piege:"Un foin « trop bon » peut le rendre malade.", glos:["fourbure","SME"]},
+  jument:{nom:"Bella", titre:"Jument de 500 kg qui allaite son poulain de 2 mois", court:"Jument suitée",
+    besoins:["Beaucoup de protéines pour produire son lait","Beaucoup d'énergie","Un foin qu'elle mange en grande quantité"],
+    piege:"Un foin pauvre la fait maigrir et réduit son lait.", glos:["MADC"]},
+  sport:{nom:"Ulysse", titre:"Cheval de concours de 500 kg, au travail régulier", court:"Cheval de sport",
+    besoins:["Un fourrage de base qui nourrit (énergie et protéines)","Plus le foin est bon, moins il faut de granulés riches en amidon","Un foin sain, sans poussière, pour ses poumons"],
+    piege:"Un mauvais foin oblige à compenser avec beaucoup de céréales.", glos:["UFC"]},
+  poulain:{nom:"Tornade", titre:"Poulain de 8 mois, 260 kg, en pleine croissance", court:"Poulain",
+    besoins:["Des protéines pour grandir","Un bon équilibre calcium/phosphore pour construire ses os","Pas d'excès d'énergie : une croissance trop rapide abîme les articulations"],
+    piege:"Le plus riche n'est pas forcément le mieux : l'équilibre compte.", glos:["CaP"]},
+  vieux:{nom:"Papy", titre:"Cheval de 27 ans, 500 kg, aux dents usées", court:"Vieux cheval",
+    besoins:["Un foin tendre et feuillu, facile à mâcher","Très digestible : il tire moins bien profit de sa ration","Assez d'énergie pour garder son état"],
+    piege:"Un foin plein de tiges dures : il le trie, le laisse, et maigrit.", glos:["digestibilite","NDF"]}
+};
+const HORSE_ORDER = ["poney","jument","sport","poulain","vieux"];
+
+const EXPERTS = {
+  securite:{titre:"Sécurité", q:"Ce foin est-il sain ?", rows:["ms","cendres"],
+    lire:"Regardez d'abord la matière sèche (MS), puis les cendres.",
+    v:"MS au-dessus de 85 % et cendres sous 10 %", o:"Pas de cas orange : sain ou pas sain", r:"MS sous 85 % (il va chauffer et moisir) ou cendres au-dessus de 10 % (terre ramassée)",
+    gerant:"Un foin malsain se refuse, quel que soit son prix. Mais attention : sain ne veut pas dire nourrissant.",
+    plus:"Ajoutez ce que vous voyez et sentez : couleur, poussière, odeur, chaleur de la botte."},
+  energie:{titre:"Énergie", q:"Ce foin nourrit-il ?", rows:["ufc"],
+    lire:"Une seule ligne : les UFC par kg de matière sèche.",
+    v:"Plus de 0,6 UFC : riche", o:"Entre 0,5 et 0,6 UFC : moyen", r:"Moins de 0,5 UFC : pauvre",
+    gerant:"Moins le foin nourrit, plus il faut acheter de granulés pour compenser. Mais un foin très riche fait grossir les chevaux qui travaillent peu."},
+  proteines:{titre:"Protéines", q:"Ce foin construit-il ? (muscle, lait, croissance)", rows:["madc","mat"],
+    lire:"Lisez la MADC (ce que le cheval utilise vraiment), pas la MAT (ce que mesure le labo).",
+    v:"MADC au-dessus de 50 g/kg MS", o:"MADC entre 40 et 50", r:"MADC sous 40, ou « NC » (non calculable)",
+    gerant:"Les protéines coûtent cher à compléter. Un foin riche en MADC fait économiser du complément pour les juments, les jeunes et les chevaux de sport."},
+  fibres:{titre:"Fibres", q:"Ce foin se mange-t-il et se digère-t-il bien ?", rows:["cb","ndf"],
+    lire:"Deux lignes : la cellulose brute (CB) et le NDF. Si elles ne disent pas la même chose, retenez la plus mauvaise.",
+    v:"CB sous 30 % et NDF sous 50 %", o:"CB de 30 à 35 % ou NDF de 50 à 60 %", r:"CB au-dessus de 35 % ou NDF au-dessus de 60 %",
+    gerant:"Un foin trop fibreux reste dans le râtelier : c'est de l'argent qui part au fumier."},
+  risques:{titre:"Risques", q:"Ce foin est-il dangereux pour certains chevaux ?", rows:["sucres","ca","p","cap"],
+    lire:"Regardez les sucres, puis le rapport Ca/P (calcium divisé par phosphore).",
+    v:"Sucres sous 10 % et Ca/P entre 1,5 et 2,5", o:"Sucres de 10 à 15 %, ou Ca/P sous 1,5", r:"Sucres au-dessus de 15 %",
+    gerant:"Ces lignes ne concernent pas tous les chevaux : les sucres menacent les poneys et les chevaux sensibles à la fourbure, le Ca/P menace surtout les poulains."}
+};
+const EXPERT_ORDER = ["securite","energie","proteines","fibres","risques"];
+
+const DEFAULT_ASSIGN = {
+  margaux:{h:"poney", e:"securite"},
+  valentin:{h:"jument", e:"energie"},
+  cecile:{h:"sport", e:"fibres"},
+  sandrine:{h:"poulain", e:"proteines"},
+  laure:{h:"vieux", e:"risques"}
+};
+
+const ROWS = {
+  ms:{label:"Matière sèche (MS)", unit:"% du brut", g:"MS", dec:1},
+  cendres:{label:"Matières minérales (cendres)", unit:"% MS", g:"cendres", dec:1},
+  ufc:{label:"UFC", unit:"/kg MS", g:"UFC", dec:2},
+  mat:{label:"MAT", unit:"g/kg MS", g:"MAT", dec:0},
+  madc:{label:"MADC", unit:"g/kg MS", g:"MADC", dec:1},
+  cb:{label:"Cellulose brute (CB)", unit:"% MS", g:"CB", dec:1},
+  ndf:{label:"NDF", unit:"% MS", g:"NDF", dec:1},
+  adf:{label:"ADF", unit:"% MS", g:"ADF", dec:1},
+  dcs:{label:"DCS", unit:"%", g:"DCS", dec:1},
+  dmo:{label:"dMO", unit:"%", g:"DCS", dec:1},
+  sucres:{label:"Sucres", unit:"% MS", g:"sucres", dec:1},
+  ca:{label:"Calcium (Ca)", unit:"g/kg MS", g:"Ca", dec:2},
+  p:{label:"Phosphore (P)", unit:"g/kg MS", g:"P", dec:2},
+  cap:{label:"Rapport Ca/P", unit:"calculé", g:"CaP", dec:1}
+};
+const FOINS = {
+  A:{code:"LANO HA25-22497", surnom:"l'exception", d:{ms:91.1,cendres:7.1,mat:131,madc:72.3,cb:30.4,ndf:58.1,adf:29.5,dcs:65.4,dmo:62.1,ufc:0.64,sucres:12.2,ca:3.08,p:2.28}},
+  B:{code:"LANO HA25-22496", surnom:"le désastre", d:{ms:91.7,cendres:3.5,mat:22,madc:null,cb:39.7,ndf:63.1,adf:36.1,dcs:43.4,dmo:44.5,ufc:0.45,sucres:21.4,ca:2.21,p:1.13}},
+  C:{code:"LANO HA25-22495", surnom:"le foin du poney", d:{ms:89.9,cendres:6.4,mat:100,madc:51.1,cb:35.4,ndf:64.6,adf:35.1,dcs:54.2,dmo:54.8,ufc:0.56,sucres:6.4,ca:4.87,p:2.33}}
+};
+for (const f of Object.values(FOINS)) f.d.cap = f.d.ca / f.d.p;
+const FOIN_KEYS = ["A","B","C"];
+const ROW_ORDER = ["ms","cendres","ufc","madc","mat","cb","ndf","sucres","ca","p","cap"];
+const OTHER_ROWS = ["adf","dcs","dmo"];
+
+const EXPERT_KEY = {
+  securite:{A:"v",B:"v",C:"v"}, energie:{A:"v",B:"r",C:"o"}, proteines:{A:"v",B:"r",C:"v"},
+  fibres:{A:"o",B:"r",C:"r"}, risques:{A:"o",B:"r",C:"v"}
+};
+const MATRIX_KEY = {
+  poney:{A:["o","Sucres 12 % : limite"],B:["r","Sucres 21 % : fourbure"],C:["v","Sucres 6 % : idéal"]},
+  jument:{A:["v","MADC 72 : couvre ses besoins"],B:["r","Vide : MADC non calculable"],C:["o","À compléter en protéines"]},
+  sport:{A:["v","La meilleure base"],B:["r","Ne nourrit pas"],C:["o","Base + complément"]},
+  poulain:{A:["o","Ca/P 1,4 : à corriger"],B:["r","Ne nourrit pas"],C:["v","Ca/P 2,1 et MADC 51"]},
+  vieux:{A:["v","Le plus digestible"],B:["r","CB 40 : indigestible"],C:["r","NDF 65 : il le laissera"]}
+};
+
+const GLOSS = {
+  MS:["Matière sèche (MS)","Ce qui reste du foin quand on enlève toute l'eau. Un foin doit en contenir plus de 85 % : plus humide, il chauffe dans la botte, moisit et devient poussiéreux. Un enrubanné est volontairement plus humide (50 à 70 %)."],
+  kgMS:["« par kg de MS »","Toutes les valeurs de la fiche sont données par kilo de foin sans son eau. 1 kg de foin à 90 % de MS = 0,9 kg de MS. On compare ainsi des fourrages plus ou moins humides."],
+  cendres:["Cendres (matières minérales)","Ce qui reste si on brûle le foin. Au-dessus de 10 %, c'est souvent de la terre ou du sable ramassés avec le foin (fauche trop basse) : poussière, usure des dents, risque de coliques."],
+  MAT:["MAT : matières azotées totales","Toutes les protéines mesurées par le laboratoire, digestibles ou non. C'est un chiffre brut : il surestime ce que le cheval utilise vraiment."],
+  MADC:["MADC : matières azotées digestibles cheval","La part des protéines que le cheval digère et utilise réellement : muscle, lait, croissance. C'est la valeur à regarder pour les protéines. Au-dessus de 50 g/kg MS, c'est bon."],
+  NC:["NC : non calculable","Le laboratoire n'a pas pu calculer la valeur parce que le foin est trop pauvre. C'est un très mauvais signe."],
+  UFC:["UFC : unité fourragère cheval","La valeur énergétique, l'équivalent des « calories » du foin. 1 UFC = l'énergie d'1 kg d'orge. Un foin va d'environ 0,4 (pauvre) à 0,7 (riche) UFC par kg de MS."],
+  CB:["Cellulose brute (CB)","La partie la plus dure de la plante (surtout les tiges). Plus elle est élevée, moins le foin est digestible. Un foin coupé tard, plein de tiges, en contient beaucoup."],
+  NDF:["NDF : fibres totales","L'ensemble des fibres (les parois des cellules de la plante). Plus il y en a, plus le cheval met de temps à mâcher et moins il en mange. Au-dessus de 60 %, il mange moins."],
+  ADF:["ADF","La partie des fibres la moins digestible (cellulose et lignine). Plus elle est haute, moins le foin nourrit. On ne l'utilise pas dans cette séance."],
+  ADL:["ADL (lignine)","Le « bois » de la plante. Le cheval ne le digère pas du tout."],
+  DCS:["DCS et dMO : digestibilités","La part du foin (en %) que le cheval digère vraiment. Plus c'est haut, mieux c'est. Utile pour un vieux cheval qui digère moins bien. Pour information aujourd'hui."],
+  sucres:["Sucres","Les sucres simples du foin : une énergie rapide, dangereuse pour les chevaux sensibles à la fourbure (poneys, chevaux obèses, syndrome métabolique). Pour eux, on cherche un foin pauvre en sucres."],
+  Ca:["Calcium (Ca)","Minéral des os et des dents, indispensable aussi au fonctionnement des muscles."],
+  P:["Phosphore (P)","Minéral des os, qui sert aussi à produire l'énergie des cellules."],
+  CaP:["Rapport Ca/P","Calcium divisé par phosphore. Il faut toujours plus de calcium que de phosphore (rapport au-dessus de 1, idéalement 1,5 à 2). S'il est trop bas, les os se forment mal, surtout chez le poulain."],
+  CMV:["CMV : complément minéral et vitaminé","Un aliment donné en petite quantité qui apporte les minéraux et vitamines que le foin n'apporte pas."],
+  PV:["PV : poids vif","Le poids du cheval."],
+  fourbure:["Fourbure","Inflammation très douloureuse du pied, parfois mortelle. Souvent déclenchée par trop de sucres ou d'amidon chez un cheval sensible."],
+  SME:["Syndrome métabolique équin (SME)","Cheval, souvent un poney, qui grossit facilement et gère mal les sucres. Très exposé à la fourbure."],
+  enrubanne:["Enrubanné","Herbe fauchée, à moitié séchée, puis emballée dans du plastique. Plus humide qu'un foin (50 à 70 % de MS) et sans poussière, mais une balle ouverte doit être mangée en quelques jours."],
+  LANO:["LANO","Laboratoire d'analyses agricoles de Saint-Lô (Manche) qui a analysé ces foins. Une analyse coûte environ 50 €."],
+  luzerne:["Luzerne","Plante de la famille des légumineuses, riche en protéines et en calcium. En foin ou en granulés, elle complète un foin pauvre en protéines."],
+  tourteau:["Tourteau","Ce qui reste d'une graine (soja, colza…) après en avoir extrait l'huile. Très riche en protéines."],
+  digestibilite:["Digestibilité","La part d'un aliment que le cheval digère vraiment. Le reste ressort dans le crottin."],
+  ingestibilite:["Ingestibilité","La quantité qu'un cheval accepte de manger. Un foin dur et fibreux est peu ingestible."]
+};
+const SEUILS = {
+  MS:["Foin : plus de 85 % de MS","Enrubanné : plus de 50 % de MS","Botte qui a chauffé à 40-60 °C : foin gris et poussiéreux, perd 5 à 15 % de son énergie et 10 à 30 % de la digestibilité de ses protéines","Au-delà de 60 °C : foin marron à noir, jusqu'à 80 % de la digestibilité des protéines perdue"],
+  cendres:["Moins de 10 % de la MS","Au-dessus : suspicion de terre ou de sable"],
+  MAT:["Foin correct : 80 g/kg MS","Bon foin : plus de 100 g/kg MS","Sous 80 g/kg MS : foin pauvre en protéines, le cheval en mange moins"],
+  MADC:["Foin correct : 40 g/kg MS","Bon foin : plus de 50 g/kg MS","Rapport MADC/UFC idéal : 80 à 120"],
+  UFC:["Un foin varie en général de 0,4 à 0,6 UFC/kg MS","Faible : moins de 0,5","Rapport MADC/UFC idéal : 80 à 120"],
+  CB:["Foin excellent : moins de 30 % de la MS","Foin correct : 30 à 35 %","La ration entière doit contenir au moins 15 % de cellulose brute"],
+  NDF:["Foin excellent : moins de 40 % de la MS","Bon foin : moins de 50 %","Foin moyen : autour de 60 %","Au-dessus de 60 % : le cheval mange moins"],
+  ADF:["Foin excellent : moins de 30 % de la MS","Bon foin : 30 à 35 %","Foin moyen : 35 à 45 %","Au-dessus de 45 % : digestibilité fortement diminuée"],
+  sucres:["Repères utilisés dans cette séance : moins de 10 % sans risque, 10 à 15 % limite, plus de 15 % dangereux pour un cheval sensible à la fourbure"],
+  CaP:["Toujours au-dessus de 1","Idéal : 1,5 à 2","Trop bas : risque pour les os, surtout chez le poulain"],
+  LANO:["Une analyse : environ 50 €","Prélever une dizaine de bottes, jusqu'au cœur","Éviter d'envoyer les échantillons le vendredi ou le samedi"],
+  enrubanne:["Plus de 50 % de MS","Une balle ouverte se consomme en 5 jours maximum"]
+};
+function seuilsHtml(g){ const x=SEUILS[g]; return x?`<div class="banner"><strong>Repères chiffrés</strong><ul class="clean">${x.map(l=>`<li>${esc(l)}</li>`).join("")}</ul></div>`:""; }
+const GLOSS_ORDER = ["MS","kgMS","cendres","UFC","MAT","MADC","NC","CB","NDF","ADF","ADL","DCS","sucres","Ca","P","CaP","digestibilite","ingestibilite","CMV","PV","fourbure","SME","enrubanne","luzerne","tourteau","LANO"];
+
+const ACCROCHE = ["Je le regarde et je le sens","Je fais confiance à mon fournisseur","Je regarde le prix","Je le fais analyser"];
+const ACHAT = [
+  {q:"Le fournisseur livre le lot sans analyse. Que faites-vous avant de payer ?", hint:[
+    "Ne pas payer le lot en l'état.",
+    "Repérer les lots (parcelle, date de coupe, botteleuse) et faire analyser chaque lot : environ 50 € par analyse, à comparer au prix du lot et aux frais vétérinaires évités.",
+    "Prélever une dizaine de bottes au hasard, jusqu'au cœur ; ne pas envoyer l'échantillon le vendredi ou le samedi.",
+    "Regarder et sentir (couleur, poussière, odeur, chaleur, moisissures) : utile pour écarter un foin malsain, mais insuffisant (le foin B semblait sain).",
+    "Prévoir au contrat une analyse par lot, un prix selon la qualité et un droit de retour."]},
+  {q:"Vous avez les analyses. Quel foin pour chacun des 5 chevaux ? Et que faites-vous du foin B ?", hint:[
+    "Foin C pour Caramel le poney (sucres 6,4 %) et pour Tornade le poulain (Ca/P 2,1, MADC 51).",
+    "Foin A pour Bella la jument suitée (MADC 72, UFC 0,64), Ulysse le cheval de sport (la meilleure base) et Papy le vieux cheval (le plus digestible).",
+    "Pas de foin A pour le poney : ses 12 % de sucres sont limites.",
+    "Foin B : refusé ou rendu au fournisseur. Il ne nourrit pas (MADC non calculable, UFC 0,45), il est indigestible (CB 40 %) et ses 21 % de sucres en font un danger pour le poney, même en litière puisqu'il la mangerait."]},
+  {q:"Que faut-il ajouter à la ration de chaque cheval ?", hint:[
+    "Tous les chevaux : un CMV (l'analyse ne dit rien du sélénium, de l'iode ni des vitamines) et du sel à disposition.",
+    "Caramel (foin C) : rien d'énergétique ; on contrôle plutôt la quantité de foin.",
+    "Tornade (foin C) : un aliment ou un CMV adaptés à la croissance ; si un complément protéique est nécessaire, plutôt de la luzerne que des céréales.",
+    "Bella et Ulysse (foin A) : le foin couvre l'essentiel ; un concentré seulement si l'état corporel ou le travail l'exigent, en respectant 100 g d'amidon/100 kg PV par repas au maximum.",
+    "Papy (foin A) : surveiller son état ; si ses dents ne suivent plus, un fourrage plus facile à mâcher (bouchons ou foin trempé)."]},
+  {q:"Votre décision en une phrase, à défendre devant les propriétaires des chevaux.", hint:[
+    "Exemple : « Nous achetons A et C après analyse de chaque lot et refusons B ; C va au poney et au poulain, A à la jument, au cheval de sport et au vieux cheval, avec un CMV pour tous. »"]}
+];
+const MESSAGES = [
+  "On analyse chaque lot (≈ 50 €), en prélevant une dizaine de bottes jusqu'au cœur.",
+  "Un foin n'est pas bon ou mauvais en soi : il convient ou non à ce cheval.",
+  "Aucun foin ne couvre tout (minéraux, vitamines) : il faut un CMV."
+];
+
+const STEPS = [
+  {id:"accueil", label:"Accueil"},
+  {id:"accroche", label:"Accroche"},
+  {id:"adoption", label:"Adoption"},
+  {id:"mancheA", label:"Foin A", foin:"A"},
+  {id:"mancheB", label:"Foin B", foin:"B"},
+  {id:"mancheC", label:"Foin C", foin:"C"},
+  {id:"revelation", label:"Révélation"},
+  {id:"vitamines", label:"Ce que l'analyse ne dit pas"},
+  {id:"achat", label:"L'achat"},
+  {id:"cloture", label:"Clôture"}
+];
+const STEP_IDX = Object.fromEntries(STEPS.map((s,i)=>[s.id,i]));
+const LIGHT = {
+  expert:{v:["✓","Bon"],o:["!","Moyen"],r:["✕","Problème"]},
+  verdict:{v:["✓","Je garde"],o:["!","Je complète"],r:["✕","Je refuse"]}
+};
+
+/* ======================= CODES DE RÉPONSE =======================
+   Le téléphone d'un étudiant fonctionne sans compte et sans réseau : chaque réponse donne un code de 4 caractères
+   (étudiant, moment, réponse, clé de contrôle) que l'enseignante saisit dans son espace. */
+const ALPHC="ABCDEFGHJKMNPQRSTUVWXYZ23456789", BC=31, MODQ=BC*BC*BC, MULQ=7919, OFFQ=12345;
+const INVQ=(()=>{ for(let i=1;i<MODQ;i++) if((MULQ*i)%MODQ===1) return i; return 1; })();
+const CODE_KINDS=["accroche","A","B","C","ticket"];
+function encodeCode(kIdx, kind, val){
+  const n=(kIdx*5+kind)*16+val, x=(n*MULQ+OFFQ)%MODQ;
+  const d=[Math.floor(x/(BC*BC)), Math.floor(x/BC)%BC, x%BC];
+  const chk=(d[0]+2*d[1]+3*d[2]+kind)%BC;
+  return d.map(k=>ALPHC[k]).join("")+ALPHC[chk];
+}
+function decodeCode(raw){
+  const t=String(raw||"").toUpperCase().replace(/[^A-Z0-9]/g,"").replace(/0/g,"O").replace(/[IL1]/g,"");
+  if(t.length!==4) return null;
+  const d=[...t].map(ch=>ALPHC.indexOf(ch)); if(d.some(k=>k<0)) return null;
+  const x=(d[0]*BC+d[1])*BC+d[2];
+  const n=(((x-OFFQ)%MODQ+MODQ)%MODQ*INVQ)%MODQ;
+  const val=n%16, kind=Math.floor(n/16)%5, kIdx=Math.floor(n/80);
+  if(kIdx>=KEYS.length) return null;
+  if((d[0]+2*d[1]+3*d[2]+kind)%BC!==d[3]) return null;
+  if(kind>=1&&kind<=3&&val>8) return null;
+  if(kind===4&&val>3) return null;
+  return {k:KEYS[kIdx], kind, val};
+}
+const CI={v:0,o:1,r:2}, IC=["v","o","r"];
+function myCode(kind){
+  const m=S.mine, i=KEYS.indexOf(S.me); if(!m||i<0) return null;
+  if(kind===0){ if(!m.v.length) return null; return encodeCode(i,0,m.v.reduce((s,x)=>s|(1<<x),0)); }
+  if(kind>=1&&kind<=3){ const f=FOIN_KEYS[kind-1], e=m.e[f], d=m.d[f]; if(!e||!d||!isColor(e.l)||!isColor(d.c)) return null; return encodeCode(i,kind,CI[e.l]*3+CI[d.c]); }
+  if(kind===4){ if(!m.k.f||!m.k.e) return null; return encodeCode(i,4,(m.k.f==="refuse"?2:0)+(m.k.e==="refuse"?1:0)); }
+  return null;
+}
+function codeBox(kind, missing){
+  const c=myCode(kind);
+  return `<div class="card" style="border:2px dashed var(--hay);text-align:center"><div class="eyebrow">Code à donner à Morgane</div>${c?`<div style="font-family:var(--font-mono);font-size:2.4rem;letter-spacing:.18em;font-weight:500">${c}</div><p class="small muted">Dictez-le ou montrez votre écran : vos réponses s'afficheront au tableau.</p>`:`<p class="muted">${esc(missing)}</p>`}</div>`;
+}
+function applyCode(r){
+  const f=r.kind>=1&&r.kind<=3?FOIN_KEYS[r.kind-1]:null;
+  teacherEdit(r.k, a=>{
+    if(r.kind===0) a.v=[0,1,2,3].filter(i=>r.val&(1<<i));
+    else if(f){ a.e[f]=Object.assign({l:"",n:""},a.e[f],{l:IC[Math.floor(r.val/3)]}); a.d[f]=Object.assign({c:"",n:""},a.d[f],{c:IC[r.val%3]}); }
+    else if(r.kind===4){ a.k.f=(r.val&2)?"refuse":"garde"; a.k.e=(r.val&1)?"refuse":"garde"; }
+  });
+  const what = r.kind===0 ? "accroche : "+[0,1,2,3].filter(i=>r.val&(1<<i)).map(i=>ACCROCHE[i].toLowerCase()).join(", ")
+    : f ? "foin "+f+" : expert "+LIGHT.expert[IC[Math.floor(r.val/3)]][1].toLowerCase()+", verdict « "+LIGHT.verdict[IC[r.val%3]][1].toLowerCase()+" »"
+    : "ticket : foin "+((r.val&2)?"refusé":"gardé")+", enrubanné "+((r.val&1)?"refusé":"gardé");
+  return NAME[r.k]+" · "+what;
+}
+
+/* ======================= ÉTAT ======================= */
+const S = {
+  route:"", me:null, tab:"seance", mine:null,
+  state:{step:"accueil", assign:DEFAULT_ASSIGN, corrige:false, revealIns:false, scribe:"margaux", groupAns:["","","",""], achatQ:0, ticketReveal:false, session:"S1", t:0},
+  stateKnown:false, autonome:true,
+  answers:{}, presenceAns:{}, peers:[],
+  db:null, room:null, user:null, isTeacher:false, dbWritable:null,
+  dbLive:false, roomLive:false, proj:false, confirmReset:false
+};
+const LS = {
+  get(k){ try{ return JSON.parse(localStorage.getItem(k)); }catch(e){ return null; } },
+  set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} },
+  del(k){ try{ localStorage.removeItem(k); }catch(e){} }
+};
+
+/* ======================= OUTILS ======================= */
+const esc = s => String(s==null?"":s).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmt = (v,dec) => v==null ? "NC" : Number(v).toFixed(dec).replace(".",",");
+const clip = (s,n) => String(s||"").slice(0,n);
+const isColor = c => c==="v"||c==="o"||c==="r";
+function assignOf(k){ const a=(S.state.assign||{})[k]; return (a&&HORSES[a.h]&&EXPERTS[a.e]) ? a : DEFAULT_ASSIGN[k]; }
+function ownerOfHorse(h){ return KEYS.find(k=>assignOf(k).h===h); }
+function ownerOfExpert(e){ return KEYS.find(k=>assignOf(k).e===e); }
+function stepIdx(){ return STEP_IDX[S.state.step] ?? 0; }
+function currentFoin(){ const s=STEPS[stepIdx()]; return s.foin||null; }
+function unlockedFoins(){ const i=stepIdx(); return FOIN_KEYS.filter((f,j)=>i>=3+j); }
+function revealed(){ return stepIdx()>=STEP_IDX.revelation; }
+function foinTitle(f){ return "Foin "+f+(revealed()?" · "+FOINS[f].surnom:""); }
+function chip(c, kind, extra){
+  if(!isColor(c)) return `<span class="chip none">en attente</span>`;
+  const [ic,lb]=LIGHT[kind||"verdict"][c];
+  return `<span class="chip ${c}" title="${esc(lb)}">${ic} ${esc(lb)}${extra?" · "+esc(extra):""}</span>`;
+}
+function term(g, txt){ return `<button class="term" data-action="gloss" data-g="${esc(g)}">${esc(txt||(GLOSS[g]?GLOSS[g][0]:g))}</button>`; }
+
+function sanitizeAns(a){
+  if(!a||typeof a!=="object") return null;
+  const o={t:Number(a.t)||0, s:clip(a.s,40)};
+  o.v=Array.isArray(a.v)?a.v.filter(x=>Number.isInteger(x)&&x>=0&&x<ACCROCHE.length).slice(0,4):[];
+  o.vw=clip(a.vw,60); o.r=!!a.r;
+  o.e={}; o.d={};
+  for(const f of FOIN_KEYS){
+    const e=a.e&&a.e[f], d=a.d&&a.d[f];
+    if(e&&typeof e==="object") o.e[f]={l:isColor(e.l)?e.l:"", n:clip(e.n,100)};
+    if(d&&typeof d==="object") o.d[f]={c:isColor(d.c)?d.c:"", n:clip(d.n,120)};
+  }
+  o.a=[0,1,2,3].map(i=>clip(Array.isArray(a.a)?a.a[i]:"",400));
+  const k=a.k||{};
+  o.k={f:(k.f==="garde"||k.f==="refuse")?k.f:"", e:(k.e==="garde"||k.e==="refuse")?k.e:"", w:clip(k.w,140)};
+  return o;
+}
+function sanitizeState(s){
+  if(!s||typeof s!=="object") return null;
+  const st={groupAns:[0,1,2,3].map(i=>clip(Array.isArray(s.groupAns)?s.groupAns[i]:"",600)), step:STEP_IDX[s.step]!=null?s.step:"accueil", corrige:!!s.corrige, revealIns:!!s.revealIns, scribe:KEYS.includes(s.scribe)?s.scribe:"margaux", ticketReveal:!!s.ticketReveal,
+    achatQ:Math.min(3,Math.max(0,Number(s.achatQ)||0)), session:clip(s.session||"S1",40), t:Number(s.t)||0, assign:{}};
+  for(const k of KEYS){ const a=s.assign&&s.assign[k]; st.assign[k]=(a&&HORSES[a.h]&&EXPERTS[a.e])?{h:a.h,e:a.e}:DEFAULT_ASSIGN[k]; }
+  return st;
+}
+function ansOf(k){
+  if(!S.isTeacher && k===S.me && S.mine) return S.mine;
+  const a=S.answers[k], p=S.presenceAns[k];
+  const ok = x => x && x.s===S.state.session;
+  const A=ok(a)?a:null, P=ok(p)?p:null;
+  if(!A) return P; if(!P) return A;
+  return (P.t>A.t)?P:A;
+}
+function online(k){ return S.peers.some(p=>p.presence&&p.presence.role==="etudiant"&&p.presence.key===k); }
+
+/* ======================= SYNCHRONISATION ======================= */
+function emptyAns(){ return {t:0, s:S.state.session, v:[], vw:"", r:false, e:{}, d:{}, a:["","","",""], k:{f:"",e:"",w:""}}; }
+function loadMine(){
+  const m=sanitizeAns(LS.get("mesb-ans-"+S.me));
+  S.mine = (m && m.s===S.state.session) ? m : emptyAns();
+}
+let saveTimer=null;
+function saveMine(debounce){
+  if(!S.me||!S.mine) return;
+  S.mine.t=Date.now(); S.mine.s=S.state.session;
+  LS.set("mesb-ans-"+S.me, S.mine);
+  if(S.room){ S.room.presence({role:"etudiant", key:S.me, ans:S.mine}).catch(()=>{}); }
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(()=>{ if(S.db && S.dbWritable!==false) writeAnswer(S.me, S.mine); }, debounce?900:150);
+}
+const writing={}, pendingW={}, persisted={};
+async function writeAnswer(k, data){
+  if(!S.db) return;
+  if(writing[k]){ pendingW[k]=data; return; }
+  writing[k]=true;
+  try{ await S.db.doc("answers/"+k).set(JSON.parse(JSON.stringify(data))); if(!S.isTeacher) S.dbWritable=true; }
+  catch(e){ if(!S.isTeacher && e && (e.code==="invalid_argument"||e.code==="permission-denied")) S.dbWritable=false; }
+  writing[k]=false;
+  if(pendingW[k]){ const d=pendingW[k]; delete pendingW[k]; writeAnswer(k,d); }
+}
+let stateWriting=false, stateNext=null;
+async function writeState(st){
+  if(!S.db) return;
+  if(stateWriting){ stateNext=st; return; }
+  stateWriting=true;
+  try{ await S.db.doc("live/state").set(JSON.parse(JSON.stringify(st))); }catch(e){}
+  stateWriting=false;
+  if(stateNext){ const n=stateNext; stateNext=null; writeState(n); }
+}
+/* Synchronisation entre fenêtres du même navigateur (régie + écran projeté), sans réseau. */
+let chan=null; try{ chan=new BroadcastChannel("mesb-trois-bottes"); }catch(e){}
+function bcast(){ if(!S.isTeacher) return; const pkt={state:S.state, answers:S.answers}; LS.set("mesb-local", pkt); try{ chan&&chan.postMessage(pkt); }catch(e){} }
+function receiveLocal(pkt){
+  if(!pkt||typeof pkt!=="object") return;
+  if(pkt.req){ if(S.isTeacher&&!S.proj&&S.route!=="projection") bcast(); return; }
+  if(pkt.state) receiveState(pkt.state);
+  if(pkt.answers&&typeof pkt.answers==="object"){ for(const k of KEYS){ const a=sanitizeAns(pkt.answers[k]); if(a&&(!S.answers[k]||a.t>(S.answers[k].t||0))) S.answers[k]=a; } }
+  render();
+}
+if(chan) chan.onmessage=e=>receiveLocal(e.data);
+window.addEventListener("storage",e=>{ if(e.key==="mesb-local"&&e.newValue){ try{ receiveLocal(JSON.parse(e.newValue)); }catch(x){} } });
+let stTimer=null;
+function setState(patch, debounce){
+  if(!S.isTeacher) return;
+  S.state=Object.assign({}, S.state, patch, {t:Date.now()});
+  S.stateKnown=true;
+  bcast();
+  clearTimeout(stTimer);
+  const push=()=>{ writeState(S.state); if(S.room) S.room.emit("state", S.state).catch(()=>{}); };
+  if(debounce) stTimer=setTimeout(push,700); else push();
+  render();
+}
+/* Saisie par l'enseignante des réponses données à l'oral ou avec les cartons. */
+function teacherEdit(k, fn){
+  if(!S.isTeacher||!KEYS.includes(k)) return;
+  const a=sanitizeAns(JSON.parse(JSON.stringify(ansOf(k)||emptyAns())))||emptyAns();
+  fn(a); a.t=Date.now(); a.s=S.state.session;
+  S.answers[k]=a; S.presenceAns[k]=null;
+  writeAnswer(k,a); bcast(); render();
+}
+function receiveState(st){
+  const s=sanitizeState(st); if(!s) return;
+  if(s.t < (S.state.t||0) && S.stateKnown) return;
+  const sessionChanged = s.session!==S.state.session;
+  S.state=s; S.stateKnown=true; S.autonome=false;
+  if(sessionChanged && S.me && !S.isTeacher){ S.mine=emptyAns(); LS.set("mesb-ans-"+S.me,S.mine); if(S.room) S.room.presence({role:"etudiant",key:S.me,ans:S.mine}).catch(()=>{}); }
+  render();
+}
+function handlePeers(peers){
+  S.peers=peers||[];
+  for(const p of S.peers){
+    const pr=p.presence||{};
+    if(pr.role!=="etudiant"||!KEYS.includes(pr.key)||p.isMe) continue;
+    const a=sanitizeAns(pr.ans); if(!a) continue;
+    const prev=S.presenceAns[pr.key];
+    if(!prev || a.t>=prev.t) S.presenceAns[pr.key]=a;
+    if(S.isTeacher && S.db && a.s===S.state.session){
+      const dbA=S.answers[pr.key];
+      if((!dbA || a.t>(dbA.t||0)) && persisted[pr.key]!==a.t){ persisted[pr.key]=a.t; writeAnswer(pr.key, a); }
+    }
+  }
+  render();
+}
+
+async function boot(){
+  S.me = LS.get("mesb-me");
+  if(S.me && !KEYS.includes(S.me)) S.me=null;
+  S.route = location.hash.replace("#","");
+  { const st=LS.get("mesb-step"); if(st&&STEP_IDX[st]!=null) S.state.step=st; }
+  if(S.me) loadMine();
+  { const pkt=LS.get("mesb-local"); if(pkt&&pkt.state){ const st=sanitizeState(pkt.state); if(st){ S.state=st; S.stateKnown=true; } if(pkt.answers) for(const k of KEYS){ const a=sanitizeAns(pkt.answers[k]); if(a) S.answers[k]=a; } } }
+  try{ chan&&chan.postMessage({req:1}); }catch(e){}
+  render();
+  let db=null, room=null, user=null;
+  if(window.firebase && FIREBASE_CONFIG.apiKey){
+    try{
+      firebase.initializeApp(FIREBASE_CONFIG);
+      const auth=firebase.auth();
+      const u=await new Promise(res=>{ const off=auth.onAuthStateChanged(x=>{ off(); res(x); }); });
+      if(!u) await auth.signInAnonymously();
+      S.isTeacher = isTeacherUser(auth.currentUser);
+      db=firebase.firestore();
+    }catch(e){ console.error(e); S.fbErr=String(e&&e.message||e); }
+  } else S.fbErr="config";
+  S.db=db; S.room=room; S.user=user;
+
+  if(S.me && !S.isTeacher) loadMine();
+  const stateTimer=null;
+  if(db){
+    db.doc("live/state").onSnapshot(snap=>{
+      clearTimeout(stateTimer);
+      if(!snap.metadata.fromCache) S.dbLive=true;
+      if(snap.exists) receiveState(snap.data());
+      else { S.stateKnown=true; render(); }
+    }, ()=>{ S.dbLive=false; render(); });
+    db.collection("answers").onSnapshot(snap=>{
+      const m={};
+      for(const d of snap.docs){ if(KEYS.includes(d.id)){ const a=sanitizeAns(d.data()); if(a) m[d.id]=a; } }
+      for(const k of KEYS){ if(m[k]&&(!S.answers[k]||m[k].t>=(S.answers[k].t||0))) S.answers[k]=m[k]; }
+      if(!S.isTeacher && S.me && m[S.me] && m[S.me].s===S.state.session && (!S.mine || m[S.me].t>S.mine.t)){ S.mine=m[S.me]; LS.set("mesb-ans-"+S.me,S.mine); }
+      render();
+    }, ()=>{});
+  }
+  if(room){
+    room.onConnection(c=>{ S.roomLive=c; render(); }, ()=>{ S.roomLive=false; render(); });
+    room.on("state", msg=>{ if(!msg.isMe) receiveState(msg.data); }, ()=>{});
+    room.onPeers(ch=>{
+      handlePeers(ch.peers);
+      if(S.isTeacher && ch.joined && ch.joined.some(p=>!p.isMe) && S.stateKnown) room.emit("state", S.state).catch(()=>{});
+    }, ()=>{});
+    if(S.isTeacher) room.presence({role:"prof"}).catch(()=>{});
+    else if(S.me) room.presence({role:"etudiant", key:S.me, ans:S.mine}).catch(()=>{});
+  }
+  render();
+}
+
+/* ======================= COMPOSANTS ======================= */
+function fiche(f, mineRows, opts){
+  opts=opts||{};
+  const F=FOINS[f], mine=new Set(mineRows||[]);
+  const tr = r => {
+    const R=ROWS[r], v=F.d[r];
+    const val = (r==="madc"&&v==null) ? term("NC","NC") : esc(fmt(v,R.dec));
+    return `<tr class="${mine.has(r)?"mine":""}${OTHER_ROWS.includes(r)?" other":""}"><td>${term(R.g,R.label)}</td><td class="val">${val}</td><td class="unit">${esc(R.unit)}</td></tr>`;
+  };
+  return `<div class="fiche">
+    <div class="fiche-head"><div><div class="eyebrow">Fiche d'analyse</div><h3>${esc(foinTitle(f))}</h3></div><div class="code">${esc(F.code)}<br>valeurs ${term("kgMS","par kg de MS")}</div></div>
+    <table><thead><tr><th>Ligne de la fiche</th><th style="text-align:right">Valeur</th><th>Unité</th></tr></thead><tbody>
+    ${ROW_ORDER.map(tr).join("")}
+    ${opts.noOther?"":`<tr class="group"><td colspan="3">Autres lignes de la fiche, pour information</td></tr>${OTHER_ROWS.map(tr).join("")}`}
+    </tbody></table></div>`;
+}
+function horseCard(h, owner){
+  const H=HORSES[h];
+  return `<div class="card"><div class="eyebrow">Mon cheval${owner?" · "+esc(FIRST(owner)):""}</div>
+    <h2>${esc(H.nom)}</h2><p class="muted">${esc(H.titre)}</p>
+    <div class="stack"><h3>Ce qui compte pour lui</h3><ul class="clean">${H.besoins.map(b=>`<li>${esc(b)}</li>`).join("")}</ul></div>
+    <div class="banner"><strong>Le piège :</strong> ${esc(H.piege)}</div>
+    <div class="row small muted">Mots utiles : ${H.glos.map(g=>term(g)).join(" ")}</div></div>`;
+}
+function expertCard(e){
+  const E=EXPERTS[e];
+  return `<div class="card"><div class="eyebrow">Ma carte d'expert · ${esc(E.titre)}</div>
+    <h2>${esc(E.q)}</h2>
+    <p>${esc(E.lire)}</p>
+    <div class="row">Lignes à lire : ${E.rows.map(r=>term(ROWS[r].g,ROWS[r].label)).join(" ")}</div>
+    <div class="stack">
+      <div class="row">${chip("v","expert")}<span>${esc(E.v)}</span></div>
+      <div class="row">${chip("o","expert")}<span>${esc(E.o)}</span></div>
+      <div class="row">${chip("r","expert")}<span>${esc(E.r)}</span></div>
+    </div>
+    <div class="banner"><strong>Pour un gérant :</strong> ${esc(E.gerant)}</div>
+    ${E.plus?`<p class="muted small">${esc(E.plus)}</p>`:""}</div>`;
+}
+function expertsPanel(f, opts){
+  opts=opts||{};
+  return `<div class="expert-list">${EXPERT_ORDER.map(e=>{
+    const k=ownerOfExpert(e), a=ansOf(k), x=a&&a.e&&a.e[f];
+    const vals=EXPERTS[e].rows.map(r=>ROWS[r].label.replace(/ \(.+\)/,"")+" "+fmt(FOINS[f].d[r],ROWS[r].dec)).join(" · ");
+    return `<div class="expert-row"><div><div class="q">${esc(EXPERTS[e].q)}</div><div class="vals">${esc(vals)}</div><div class="small muted">Expert : ${esc(FIRST(k))}</div></div>
+      <div class="stack" style="justify-items:end">${chip(x&&x.l,"expert")}${opts.corrige?`<span class="exp">corrigé : ${chip(EXPERT_KEY[e][f],"expert")}</span>`:""}</div>
+      ${x&&x.n?`<div class="note">« ${esc(x.n)} »</div>`:""}</div>`;
+  }).join("")}</div>`;
+}
+function matrix(opts){
+  opts=opts||{};
+  const fs=opts.all?FOIN_KEYS:unlockedFoins();
+  return `<div class="tbl"><table class="mx"><thead><tr><th>Cheval</th>${FOIN_KEYS.map(f=>`<th class="c">Foin ${f}${revealed()?`<br><span class="small">${esc(FOINS[f].surnom)}</span>`:""}</th>`).join("")}</tr></thead><tbody>
+  ${HORSE_ORDER.map(h=>{ const k=ownerOfHorse(h), a=ansOf(k);
+    return `<tr><td><div class="who">${esc(HORSES[h].nom)}</div><div class="what">${esc(HORSES[h].court)} · ${esc(FIRST(k))}</div></td>
+    ${FOIN_KEYS.map(f=>{ if(!fs.includes(f)) return `<td class="cell"><span class="muted small">—</span></td>`;
+      const d=a&&a.d&&a.d[f];
+      return `<td class="cell">${chip(d&&d.c,"verdict")}${d&&d.n&&opts.reasons?`<div class="exp">« ${esc(d.n)} »</div>`:""}${opts.corrige?`<div class="exp">corrigé : ${chip(MATRIX_KEY[h][f][0],"verdict")}<br>${esc(MATRIX_KEY[h][f][1])}</div>`:""}</td>`;}).join("")}</tr>`;}).join("")}
+  </tbody></table></div>`;
+}
+function voteBars(){
+  const counts=ACCROCHE.map(()=>0), words=[];
+  for(const k of KEYS){ const a=ansOf(k); if(!a) continue; a.v.forEach(i=>counts[i]++); if(a.vw) words.push([k,a.vw]); }
+  return `<div class="stack">${ACCROCHE.map((o,i)=>`<div class="barrow"><span>${esc(o)}</span><div><div class="bar" style="width:${counts[i]*20}%;min-width:${counts[i]?6:0}px"></div></div><strong>${counts[i]}</strong></div>`).join("")}</div>
+  ${words.length?`<div class="row">${words.map(([k,w])=>`<span class="pill">${esc(FIRST(k))} : ${esc(w)}</span>`).join("")}</div>`:""}`;
+}
+function ticketResults(show){
+  const rows=KEYS.map(k=>{ const a=ansOf(k), t=a&&a.k||{}; return `<tr><td>${esc(FIRST(k))}</td><td>${t.f?esc(t.f==="garde"?"Je garde":"Je refuse"):"—"}</td><td>${t.e?esc(t.e==="garde"?"Je garde":"Je refuse"):"—"}</td><td>${esc(t.w||"")}</td></tr>`; }).join("");
+  return `<div class="tbl"><table><thead><tr><th>Étudiant</th><th>Si c'est un foin</th><th>Si c'est un enrubanné</th><th>Pourquoi</th></tr></thead><tbody>${rows}</tbody></table></div>
+  ${show?`<div class="reveal"><strong>Réponse :</strong> un foin à 82 % de MS est trop humide (seuil 85 %) : il va chauffer et moisir, on le refuse. Un enrubanné à 82 % est très sec pour un enrubanné (seuil 50 %) : on le garde. Le même chiffre ne se lit pas pareil selon le fourrage.</div>`:""}`;
+}
+
+/* ======================= VUES : ÉCRAN COMMUN ======================= */
+function stageContent(forProj, preview){
+  const st=S.state.step, f=currentFoin(), cor=S.isTeacher&&S.state.corrige;
+  switch(st){
+    case "accueil": return `<div class="card"><div class="eyebrow">MS MESB · Nutrition équine · CM 4</div><h1>Même prairie, trois bottes : lequel j'achète, et pour qui ?</h1>
+      <div class="row" style="align-items:center;gap:24px"><div id="qr" style="width:236px;height:236px;background:#fff;padding:8px;border-radius:8px"></div>
+      <div class="stack"><p>Scannez le code avec votre téléphone (pas besoin de compte), ou ouvrez :</p><p style="font-family:var(--font-mono);font-size:.9em;word-break:break-all">${esc(location.origin+location.pathname)}</p><p class="muted">Choisissez votre nom : vos réponses s'afficheront au tableau.</p></div></div>
+      <div class="names">${STUDENTS.map(s=>`<div class="pill" style="justify-content:flex-start;padding:10px 14px;font-size:1rem">${esc(s.name)}</div>`).join("")}</div></div>`;
+    case "accroche": return `<div class="card"><div class="eyebrow">Accroche</div><h1>Vous achetez du foin pour votre écurie. Comment savez-vous qu'il est bon ?</h1>${voteBars()}</div>`;
+    case "adoption": return `<div class="card"><div class="eyebrow">Adoption</div><h1>Un cheval et une question d'expert chacun</h1>
+      <div class="tbl"><table><thead><tr><th>Étudiant</th><th>Son cheval</th><th>Sa question d'expert</th><th>Carte lue</th></tr></thead><tbody>
+      ${KEYS.map(k=>{const a=assignOf(k), r=ansOf(k); return `<tr><td><strong>${esc(NAME[k])}</strong></td><td>${esc(HORSES[a.h].nom)} · ${esc(HORSES[a.h].court)}</td><td>${esc(EXPERTS[a.e].q)}</td><td>${r&&r.r?"✓":"…"}</td></tr>`;}).join("")}
+      </tbody></table></div></div>`;
+    case "mancheA": case "mancheB": case "mancheC":
+      return `<div class="grid2"><div class="card"><div class="eyebrow">Le tour des experts</div><h2>${esc(foinTitle(f))}</h2>${expertsPanel(f,{corrige:cor})}</div>
+        <div class="card"><div class="eyebrow">La matrice</div><h2>Je garde, je complète ou je refuse ?</h2>${matrix({corrige:cor, reasons:forProj})}</div></div>`;
+    case "revelation": return `<div class="card"><div class="eyebrow">Révélation</div><h1>A, B et C : la même prairie, coupée le même jour, chez le même éleveur.</h1>
+        <p class="muted">Si on avait analysé une seule botte, on se serait trompé sur les deux autres. Et à l'œil, rien ne distinguait le foin B.</p></div>
+        <div class="card">${matrix({all:true, corrige:cor, reasons:forProj})}</div>
+        ${(S.state.revealIns||preview)?`${(!S.state.revealIns&&preview)?`<div class="banner">Ces trois encarts sont masqués aux étudiants et à l'écran projeté. Bouton « Afficher les encarts » ci-dessus.</div>`:""}<div class="grid2" style="${S.state.revealIns?"":"opacity:.55"}">
+          <div class="card"><h3>La ligne de Caramel, le poney</h3><p>Pour lui, le meilleur foin est le plus « pauvre ». Un foin trop riche coûte aussi : obésité, fourbure, frais vétérinaires.</p></div>
+          <div class="card"><h3>Tornade, le poulain</h3><p>Le foin « d'exception » perd contre le foin banal : l'équilibre calcium/phosphore compte plus que la richesse.</p></div>
+          <div class="card"><h3>La colonne B</h3><p>Rouge partout, et pourtant sain, sec, sans odeur. Seule l'analyse le trahit.</p></div>
+        </div>`:""}
+        <div class="card"><h3>Rappel de l'accroche</h3>${voteBars()}</div>`;
+    case "vitamines": return `<div class="card"><div class="eyebrow">Ce que l'analyse ne dit pas</div><h1>Un verdict vert ne veut pas dire que tout est couvert.</h1>
+        <ul class="clean"><li>Pas de ligne sélénium, pas de ligne iode, pas de ligne vitamines sur la fiche : l'analyse courante ne les mesure pas.</li>
+        <li>La vitamine E et le bêta-carotène diminuent pendant le séchage et le stockage du foin.</li>
+        <li>Donc, quel que soit le foin : un ${term("CMV")} pour tous les chevaux.</li></ul></div>`;
+    case "achat": { const q=S.state.achatQ||0, sc=S.state.scribe, ga0=ansOf(sc), ga={a:[0,1,2,3].map(i=>(S.state.groupAns&&S.state.groupAns[i])||(ga0&&ga0.a[i])||"")};
+      return `<div class="card"><div class="eyebrow">Mise en situation · question ${q+1} sur 4 · réponse commune</div><h1>${esc(ACHAT[q].q)}</h1>
+        <p class="muted">Vous formez l'équipe de direction d'une écurie qui héberge les 5 chevaux. Le fournisseur propose le lot entier : A, B et C.</p>
+        <div class="reveal"><div class="small muted">Réponse du groupe</div><div style="white-space:pre-wrap">${ga&&ga.a[q]?esc(ga.a[q]):`<span class="muted">pas encore de réponse</span>`}</div></div>
+        ${cor?`<div class="banner"><strong>Éléments attendus</strong><ul class="clean">${ACHAT[q].hint.map(h=>`<li>${esc(h)}</li>`).join("")}</ul></div>`:""}</div>`; }
+    case "cloture": return `<div class="card"><div class="eyebrow">Clôture</div><h1>Trois choses à retenir</h1><ol class="clean">${MESSAGES.map(m=>`<li class="big-msg">${esc(m)}</li>`).join("")}</ol></div>
+        <div class="card"><h2>Ticket de sortie : ce fourrage affiche 82 % de MS</h2>${ticketResults(S.state.ticketReveal)}</div>`;
+  }
+  return "";
+}
+
+/* ======================= VUE ÉTUDIANT ======================= */
+function studentSeance(){
+  const st=S.state.step, a=assignOf(S.me), m=S.mine, f=currentFoin();
+  const autonomeBar = S.autonome?`<div class="banner"><strong>Où en est la séance ?</strong> Choisissez l'étape annoncée par Morgane. <div class="steps" style="margin-top:8px">${STEPS.map(s=>`<button data-action="auto-step" data-step="${s.id}" ${s.id===st?'aria-current="step"':""}>${esc(s.label)}</button>`).join("")}</div></div>`:"";
+  let body="";
+  switch(st){
+    case "accueil": body=`<div class="card"><div class="eyebrow">Bienvenue ${esc(FIRST(S.me))}</div><h1>La séance va commencer</h1><p>${S.autonome?"Quand Morgane change d'étape, choisissez la même étape dans la liste ci-dessus.":"Cette page avance toute seule quand Morgane change d'étape."} En attendant, vous pouvez parcourir le ${`<button class="term" data-action="tab" data-tab="lexique">lexique</button>`}.</p></div>`; break;
+    case "accroche": body=`<div class="card hl"><div class="eyebrow">Accroche</div><h2>Vous achetez du foin pour votre écurie. Comment savez-vous qu'il est bon ?</h2>
+      <p class="muted small">Plusieurs réponses possibles.</p>
+      <div class="stack">${ACCROCHE.map((o,i)=>`<button class="btn" data-action="vote" data-i="${i}" aria-pressed="${m.v.includes(i)}">${esc(o)}</button>`).join("")}</div>
+      <label class="lbl" for="f-vw">Un mot pour expliquer votre choix</label><input type="text" id="f-vw" data-field="vw" maxlength="60" value="${esc(m.vw)}"></div>${codeBox(0,"Choisissez au moins une réponse pour obtenir votre code.")}`; break;
+    case "adoption": body=`<div class="card hl"><div class="eyebrow">Adoption</div><h2>Voici votre cheval et votre question d'expert</h2><p>Lisez les deux cartes, puis appuyez sur le bouton.</p>
+      <button class="btn ${m.r?"":"primary"}" data-action="ready" aria-pressed="${m.r}">${m.r?"✓ J'ai lu mes cartes":"J'ai lu mes cartes"}</button></div>${horseCard(a.h)}${expertCard(a.e)}`; break;
+    case "mancheA": case "mancheB": case "mancheC": {
+      const E=EXPERTS[a.e], H=HORSES[a.h], ex=m.e[f]||{}, vd=m.d[f]||{};
+      body=`<div class="card hl"><div class="eyebrow">Étape 1 · votre avis d'expert ${esc(E.titre)}</div><h2>${esc(foinTitle(f))} : ${esc(E.q)}</h2>
+        <p class="muted small">${esc(E.lire)} Vos lignes sont surlignées dans la fiche ci-dessous.</p>
+        <div class="lights">${["v","o","r"].map(c=>`<button class="light ${c}" data-action="expert" data-c="${c}" aria-pressed="${ex.l===c}"><span class="ic">${LIGHT.expert[c][0]}</span>${LIGHT.expert[c][1]}<span class="sub">${esc(E[c])}</span></button>`).join("")}</div>
+        <label class="lbl" for="f-en">Ce que vous direz aux autres en une phrase</label><input type="text" id="f-en" data-field="en" maxlength="100" value="${esc(ex.n||"")}"></div>
+        ${fiche(f, E.rows)}
+        ${S.autonome?"":`<div class="card"><div class="eyebrow">Ce que disent les experts</div>${expertsPanel(f)}</div>`}
+        <div class="card hl"><div class="eyebrow">Étape 2 · votre décision pour ${esc(H.nom)}</div><h2>Ce foin, pour ${esc(H.court.toLowerCase())} : vous le gardez, le complétez ou le refusez ?</h2>
+        <div class="lights">${["v","o","r"].map(c=>`<button class="light ${c}" data-action="verdict" data-c="${c}" aria-pressed="${vd.c===c}"><span class="ic">${LIGHT.verdict[c][0]}</span>${LIGHT.verdict[c][1]}</button>`).join("")}</div>
+        <label class="lbl" for="f-dn">Pourquoi ? (une phrase)</label><input type="text" id="f-dn" data-field="dn" maxlength="120" value="${esc(vd.n||"")}">
+        <p class="small muted">Rappel : ${esc(H.besoins[0].toLowerCase())}.</p></div>
+        ${codeBox(FOIN_KEYS.indexOf(f)+1,"Donnez votre avis d'expert (étape 1) et votre décision (étape 2) pour obtenir votre code.")}`; break; }
+    case "revelation": body=stageContent(false); break;
+    case "vitamines": body=stageContent(false); break;
+    case "achat": { const sc=S.state.scribe, isSc=S.autonome||sc===S.me, ga=isSc?m:ansOf(sc);
+      body=`<div class="card hl"><div class="eyebrow">Mise en situation : l'achat · réponse commune</div><h2>Vous êtes l'équipe de direction d'une écurie qui héberge les 5 chevaux</h2>
+      <p>Le fournisseur propose le lot entier (A, B et C, sans dire qu'il y a trois qualités). Discutez ensemble : le groupe donne une seule réponse par question.</p>
+      <div class="banner">${S.autonome?`Notez vos idées ici. Quand le groupe est d'accord, dictez la réponse commune à Morgane : elle s'affiche au tableau.`:isSc?`<strong>Vous êtes le secrétaire du groupe.</strong> Notez la réponse sur laquelle vous vous mettez d'accord ; elle s'affiche en direct chez les autres et à l'écran.`:`<strong>${esc(FIRST(sc))} est secrétaire du groupe</strong> et note vos réponses communes : proposez vos idées à voix haute. Le texte s'affiche ici en direct.`}</div></div>
+      ${ACHAT.map((x,i)=>`<div class="card ${S.state.achatQ===i?"hl":""}">${isSc?`<label class="lbl" for="f-a${i}">${i+1}. ${esc(x.q)}</label><textarea id="f-a${i}" data-field="a${i}" maxlength="400" style="min-height:96px">${esc(m.a[i])}</textarea>`
+        :`<h3>${i+1}. ${esc(x.q)}</h3><div style="white-space:pre-wrap">${ga&&ga.a[i]?esc(ga.a[i]):`<span class="muted">pas encore de réponse</span>`}</div>`}</div>`).join("")}
+      <div class="card"><div class="eyebrow">Aide-mémoire</div>${matrix({all:true})}</div>`; break; }
+    case "cloture": body=`<div class="card"><div class="eyebrow">Clôture</div><h2>Trois choses à retenir</h2><ol class="clean">${MESSAGES.map(x=>`<li>${esc(x)}</li>`).join("")}</ol></div>
+      <div class="card hl"><div class="eyebrow">Ticket de sortie (individuel)</div><h2>Ce fourrage affiche 82 % de ${term("MS","matière sèche")}.</h2>
+      <div class="stack"><strong>Si c'est un foin :</strong><div class="row">${["garde","refuse"].map(x=>`<button class="btn" data-action="ticket" data-q="f" data-x="${x}" aria-pressed="${m.k.f===x}">${x==="garde"?"Je le garde":"Je le refuse"}</button>`).join("")}</div></div>
+      <div class="stack"><strong>Si c'est un ${term("enrubanne","enrubanné")} :</strong><div class="row">${["garde","refuse"].map(x=>`<button class="btn" data-action="ticket" data-q="e" data-x="${x}" aria-pressed="${m.k.e===x}">${x==="garde"?"Je le garde":"Je le refuse"}</button>`).join("")}</div></div>
+      <label class="lbl" for="f-kw">Pourquoi ?</label><input type="text" id="f-kw" data-field="kw" maxlength="140" value="${esc(m.k.w)}">
+      ${codeBox(4,"Répondez aux deux questions pour obtenir votre code.")}
+      ${S.state.ticketReveal?`<div class="reveal">Un foin à 82 % de MS est trop humide (seuil 85 %) : on le refuse. Pour un enrubanné (seuil 50 %), 82 % c'est très sec : on le garde.</div>`:""}</div>`; break;
+  }
+  return autonomeBar+body;
+}
+function studentView(){
+  if(!S.me) return pickName();
+  const a=assignOf(S.me);
+  const live = S.dbLive||S.roomLive;
+  const top=`<header class="topbar"><div class="in"><span class="brand">Trois bottes</span>${S.autonome?"":`<span class="pill"><span class="dot ${live?"on":""}"></span>${live?"En direct":"Hors ligne"}</span>`}<span class="spacer"></span>
+    <span class="pill">${esc(NAME[S.me])}</span><button class="btn ghost small" data-action="change-me">Changer</button>
+    ${S.isTeacher?`<button class="btn small" data-action="route" data-r="prof">Espace enseignante</button>`:""}</div></header>`;
+  let content="";
+  if(S.tab==="seance") content=studentSeance();
+  else if(S.tab==="cheval") content=horseCard(a.h);
+  else if(S.tab==="expert") content=expertCard(a.e);
+  else if(S.tab==="fiches"){ const u=unlockedFoins(); content=u.length?u.map(f=>fiche(f, EXPERTS[a.e].rows)).join(""):`<div class="card"><p>Les fiches d'analyse apparaîtront au fil des manches.</p></div>`; }
+  else if(S.tab==="lexique") content=lexique();
+  const warn = (S.dbWritable===false && !S.roomLive) ? `<div class="banner bad">Vos réponses sont enregistrées sur cet appareil mais n'arrivent pas à l'écran de l'enseignante. Gardez la page ouverte : elles partiront dès que la connexion reviendra.</div>` : "";
+  const tabs=[["seance","Séance"],["cheval","Mon cheval"],["expert","Mon expert"],["fiches","Fiches"],["lexique","Lexique"]];
+  return top+`<main class="wrap">${warn}${content}</main><nav class="tabs" role="tablist">${tabs.map(([t,l])=>`<button role="tab" data-action="tab" data-tab="${t}" aria-selected="${S.tab===t}">${l}</button>`).join("")}</nav>`;
+}
+function pickName(){
+  return `<main class="wrap"><div class="card"><div class="eyebrow">MS MESB · Nutrition équine</div><h1>Bonjour ! Qui êtes-vous ?</h1><p class="muted">Choisissez votre nom pour commencer.</p>
+    <div class="names">${STUDENTS.map(s=>`<button data-action="pick" data-k="${s.key}">${esc(s.name)}</button>`).join("")}</div></div>
+    <div class="row"><button class="btn ghost small" data-action="route" data-r="prof">Espace enseignante</button></div></main>`;
+}
+function lexique(){
+  return `<div class="card"><div class="eyebrow">Lexique</div><h2>Les mots de la fiche d'analyse, en clair</h2>
+    <label class="lbl" for="f-lex">Chercher un mot</label><input type="text" id="f-lex" data-field="lex" placeholder="ex. NDF, MADC, sucres" value="${esc(S.lexq||"")}"></div>
+    <div class="stack" id="lex-list">${lexItems()}</div>`;
+}
+function lexItems(){
+  const q=(S.lexq||"").toLowerCase().trim();
+  return GLOSS_ORDER.filter(g=>!q||(GLOSS[g][0]+" "+GLOSS[g][1]+" "+(SEUILS[g]||[]).join(" ")).toLowerCase().includes(q)).map(g=>`<div class="card"><h3>${esc(GLOSS[g][0])}</h3><p>${esc(GLOSS[g][1])}</p>${seuilsHtml(g)}</div>`).join("")||`<p class="muted">Aucun mot ne correspond.</p>`;
+}
+
+/* ======================= VUE ENSEIGNANTE ======================= */
+function teacherView(partsOnly){
+  if(!S.isTeacher) return codeView();
+  const i=stepIdx(), st=S.state.step;
+  const live=S.dbLive||S.roomLive;
+  const nOnline=KEYS.filter(online).length;
+  const prog=`<div class="tbl"><table><thead><tr><th>Étudiant</th><th>Cheval</th><th>Expert</th><th>Accroche</th><th>Cartes</th>${FOIN_KEYS.map(f=>`<th>Foin ${f}<br>expert · verdict</th>`).join("")}<th>Achat</th><th>Ticket</th></tr></thead><tbody>
+    ${KEYS.map(k=>{const a=ansOf(k), as=assignOf(k);
+      const sel=(kind,opts,cur)=>`<select data-action="assign" data-k="${k}" data-kind="${kind}" aria-label="${kind==="h"?"Cheval":"Expert"} de ${esc(NAME[k])}">${opts.map(o=>`<option value="${o}" ${o===cur?"selected":""}>${esc(kind==="h"?HORSES[o].nom:EXPERTS[o].titre)}</option>`).join("")}</select>`;
+      return `<tr><td><span class="dot ${online(k)?"on":""}"></span> <strong>${esc(NAME[k])}</strong></td>
+      <td>${sel("h",HORSE_ORDER,as.h)}</td><td>${sel("e",EXPERT_ORDER,as.e)}</td>
+      <td>${a&&a.v.length?"✓":"·"}</td><td>${a&&a.r?"✓":"·"}</td>
+      ${FOIN_KEYS.map(f=>{const e=a&&a.e[f], d=a&&a.d[f]; return `<td><div class="row" style="gap:4px">${e&&e.l?chip(e.l,"expert"):"·"} ${d&&d.c?chip(d.c,"verdict"):"·"}</div></td>`;}).join("")}
+      <td>${a?a.a.filter(Boolean).length:0}/4</td><td>${a&&a.k.f&&a.k.e?"✓":"·"}</td></tr>`;}).join("")}
+    </tbody></table></div>`;
+  const extra = st==="revelation" ? `<div class="row"><button class="btn" data-action="reveal-ins" aria-pressed="${S.state.revealIns}">${S.state.revealIns?"Encarts affichés (Caramel, Tornade, colonne B)":"Afficher les encarts (Caramel, Tornade, colonne B)"}</button></div>`
+    : st==="achat" ? `<div class="row"><label for="f-scribe">Secrétaire du groupe :</label><select id="f-scribe" data-action="scribe" style="width:auto">${KEYS.map(k=>`<option value="${k}" ${S.state.scribe===k?"selected":""}>${esc(NAME[k])}</option>`).join("")}</select></div><div class="row"><span>Question projetée :</span>${ACHAT.map((x,j)=>`<button class="btn small" data-action="achatq" data-q="${j}" aria-pressed="${S.state.achatQ===j}">Q${j+1}</button>`).join("")}</div>`
+    : st==="cloture" ? `<div class="row"><button class="btn" data-action="ticket-reveal" aria-pressed="${S.state.ticketReveal}">${S.state.ticketReveal?"Réponse du ticket affichée":"Afficher la réponse du ticket"}</button></div>` : "";
+  const notes = {
+    accueil:"Les étudiants ouvrent le lien et choisissent leur nom. Les points verts indiquent qui est connecté.",
+    accroche:"Si vous avez des photos ou des échantillons de foin, montrez-les maintenant. Le vote reviendra à la révélation.",
+    adoption:"Vous pouvez réattribuer chevaux et questions dans le tableau ; choisir un cheval déjà pris échange les deux étudiants.",
+    mancheA:"Tour des experts (30 s chacun), puis chaque propriétaire pose son verdict.", mancheB:"Plus rapide : tout est rouge, sauf la sécurité. Faites-le remarquer.", mancheC:"Le damier se complète : laissez-les lire les contradictions.",
+    revelation:"Révélez « même prairie, même jour » et revenez au vote de l'accroche.", vitamines:"5 minutes : aucun foin ne couvre tout, d'où le CMV.",
+    achat:"Discussion de groupe ; le ou la secrétaire note une réponse commune par question. Projetez une question à la fois, puis le corrigé.", cloture:"Trois messages, puis le ticket de sortie individuel."
+  };
+  const controls=`<div class="card"><div class="row"><div class="eyebrow">Étape ${i+1} sur ${STEPS.length}</div><span class="spacer"></span>
+      <button class="btn" data-action="prev" ${i===0?"disabled":""}>← Précédente</button><button class="btn primary" data-action="next" ${i===STEPS.length-1?"disabled":""}>Suivante →</button></div>
+      <div class="steps">${STEPS.map((s,j)=>`<button data-action="goto" data-step="${s.id}" ${j===i?'aria-current="step"':""} class="${j<i?"done":""}">${j+1}. ${esc(s.label)}</button>`).join("")}</div>
+      <p class="muted small">${esc(notes[st]||"")}</p>
+      <div class="row"><button class="btn" data-action="corrige" aria-pressed="${S.state.corrige}">${S.state.corrige?"Corrigé affiché à l'écran":"Afficher le corrigé à l'écran"}</button>${extra}</div></div>`;
+  const entry=entryPanel();
+  if(partsOnly) return {controls:controls+entry, prog};
+  return `<header class="topbar"><div class="in"><span class="brand">Trois bottes · Espace enseignante</span><span class="pill"><span class="dot ${live?"on":""}"></span>${live?"En direct":"Hors ligne"}</span><span class="spacer"></span>
+    <a class="btn primary" href="#projection" target="_blank" rel="noopener" style="text-decoration:none">Projeter dans une nouvelle fenêtre</a><button class="btn" data-action="proj">Projeter ici</button><button class="btn ghost" data-action="route" data-r="etudiant">Vue étudiant</button><button class="btn ghost" data-action="logout">Verrouiller</button></div></header>
+  <main class="wrap">
+    ${!S.db?`<div class="banner bad">Firebase n'est pas joignable (${esc(S.fbErr||"")}) : les réponses des téléphones n'arrivent pas. Les codes et la saisie manuelle restent possibles.</div>`:""}
+    ${controls}
+    ${entry}
+    <div class="card"><div class="eyebrow">Suivi des étudiants</div>${prog}</div>
+    <div class="eyebrow">Aperçu de l'écran projeté</div>
+    ${stageContent(false,true)}
+    <div class="card"><div class="eyebrow">Nouvelle séance</div><p class="small muted">Efface toutes les réponses (à faire avant de réutiliser l'application avec un autre groupe).</p>
+      ${S.confirmReset?`<div class="row"><strong>Effacer toutes les réponses ?</strong><button class="btn danger" data-action="reset-yes">Oui, tout effacer</button><button class="btn" data-action="reset-no">Annuler</button></div>`:`<div class="row"><button class="btn danger" data-action="reset">Effacer les réponses</button></div>`}</div>
+  </main>`;
+}
+function entryPanel(){
+  const st=S.state.step, f=currentFoin();
+  const lightBtns=(k,kind,cur,field)=>["v","o","r"].map(c=>`<button class="btn small" style="padding:4px 9px" data-action="tedit" data-k="${k}" data-field="${field}" data-c="${c}" aria-pressed="${cur===c}" title="${esc(LIGHT[kind][c][1])}">${LIGHT[kind][c][0]}</button>`).join("");
+  let body="";
+  if(st==="accroche") body=`<div class="tbl"><table><thead><tr><th>Étudiant</th>${ACCROCHE.map(o=>`<th>${esc(o)}</th>`).join("")}</tr></thead><tbody>${KEYS.map(k=>{const a=ansOf(k)||emptyAns(); return `<tr><td>${esc(FIRST(k))}</td>${ACCROCHE.map((o,i)=>`<td><button class="btn small" data-action="tedit" data-k="${k}" data-field="v" data-c="${i}" aria-pressed="${a.v.includes(i)}">${a.v.includes(i)?"✓":"·"}</button></td>`).join("")}</tr>`;}).join("")}</tbody></table></div>`;
+  else if(f) body=`<div class="tbl"><table><thead><tr><th>Étudiant</th><th>Avis d'expert<br><span class="small">✓ bon · ! moyen · ✕ problème</span></th><th>Verdict pour son cheval<br><span class="small">✓ garde · ! complète · ✕ refuse</span></th></tr></thead><tbody>${KEYS.map(k=>{const a=ansOf(k)||emptyAns(), as=assignOf(k), e=a.e[f]||{}, d=a.d[f]||{};
+      return `<tr><td><strong>${esc(FIRST(k))}</strong><div class="small muted">${esc(EXPERTS[as.e].titre)} · ${esc(HORSES[as.h].nom)}</div></td><td><div class="row" style="gap:4px">${lightBtns(k,"expert",e.l,"el")}</div></td><td><div class="row" style="gap:4px">${lightBtns(k,"verdict",d.c,"dc")}</div></td></tr>`;}).join("")}</tbody></table></div>`;
+  else if(st==="achat") body=ACHAT.map((x,i)=>`<label class="lbl" for="g-a${i}">${i+1}. ${esc(x.q)}</label><textarea id="g-a${i}" data-gfield="${i}" maxlength="600">${esc((S.state.groupAns||[])[i]||"")}</textarea>`).join("");
+  else if(st==="cloture") body=`<div class="tbl"><table><thead><tr><th>Étudiant</th><th>Si c'est un foin</th><th>Si c'est un enrubanné</th></tr></thead><tbody>${KEYS.map(k=>{const a=ansOf(k)||emptyAns(); const b=(q)=>["garde","refuse"].map(x=>`<button class="btn small" data-action="tedit" data-k="${k}" data-field="k${q}" data-c="${x}" aria-pressed="${a.k[q]===x}">${x==="garde"?"Garde":"Refuse"}</button>`).join(" "); return `<tr><td>${esc(FIRST(k))}</td><td>${b("f")}</td><td>${b("e")}</td></tr>`;}).join("")}</tbody></table></div>`;
+  const codeForm=`<form id="codein-form" class="row" autocomplete="off"><label class="lbl" for="f-codein">Code d'un étudiant</label><input type="text" id="f-codein" maxlength="9" style="width:9em;font-family:var(--font-mono);font-size:1.1rem;letter-spacing:.12em;text-transform:uppercase" placeholder="ex. K7PA"><button class="btn primary" type="submit">Valider</button></form>
+    ${S.codeMsg?`<div class="banner ${S.codeMsg.bad?"bad":""}" role="status">${esc(S.codeMsg.t)}</div>`:""}`;
+  return `<div class="card hl"><div class="eyebrow">Saisie des réponses de la classe</div><p class="small muted">Tapez le code affiché sur le téléphone de l'étudiant, ou cliquez directement ses choix ci-dessous. L'écran projeté se met à jour aussitôt.</p>${codeForm}${body}</div>`;
+}
+function isTeacherUser(u){ return !!(u && !u.isAnonymous && u.email && TEACHER_EMAIL && u.email.toLowerCase()===TEACHER_EMAIL.toLowerCase()); }
+async function teacherLogin(){
+  S.codeErr=false;
+  try{
+    const auth=firebase.auth(), prov=new firebase.auth.GoogleAuthProvider();
+    await auth.signInWithPopup(prov);
+    if(isTeacherUser(auth.currentUser)){ S.isTeacher=true; S.route="prof"; }
+    else { S.codeErr="Ce compte Google n'est pas celui de l'enseignante."; await auth.signOut(); await auth.signInAnonymously(); }
+  }catch(e){ S.codeErr="Connexion impossible : "+(e&&e.message||e); }
+  render();
+}
+function codeView(){
+  if(window.firebase && FIREBASE_CONFIG.apiKey) return `<main class="wrap"><div class="card" style="max-width:460px"><div class="eyebrow">Espace enseignante</div><h2>Connexion</h2>
+    <p class="muted">Connectez-vous avec le compte Google de l'enseignante.</p>
+    ${S.codeErr?`<p style="color:var(--bad)">${esc(S.codeErr)}</p>`:""}
+    <div class="row"><button class="btn primary" data-action="glogin">Se connecter avec Google</button><button class="btn ghost" data-action="route" data-r="etudiant">Retour</button></div></div></main>`;
+  return `<main class="wrap"><div class="card"><h2>Configuration Firebase manquante</h2><p>Renseignez FIREBASE_CONFIG et TEACHER_EMAIL en haut du fichier index.html.</p></div></main>`;
+}
+function codeViewOld(){
+  return `<main class="wrap"><form class="card" id="code-form" style="max-width:420px"><div class="eyebrow">Espace enseignante</div><h2>Entrez le code</h2>
+    <label class="lbl" for="f-code">Code d'accès</label><input type="password" id="f-code" autocomplete="off" autocapitalize="characters">
+    ${S.codeErr?`<p style="color:var(--bad)">Code incorrect. Vérifiez les majuscules et réessayez.</p>`:""}
+    <div class="row"><button class="btn primary" type="submit">Ouvrir</button><button class="btn ghost" type="button" data-action="route" data-r="etudiant">Retour</button></div></form></main>`;
+}
+document.addEventListener("submit", ev=>{
+  if(ev.target.id==="codein-form"){
+    ev.preventDefault();
+    const inp=document.getElementById("f-codein"), r=decodeCode(inp.value);
+    if(r) S.codeMsg={t:"✓ "+applyCode(r)}; else S.codeMsg={bad:true,t:"Code « "+inp.value+" » non reconnu. Vérifiez les caractères (il en faut 4)."};
+    inp.value=""; inp.blur(); render();
+    const n=document.getElementById("f-codein"); if(n) n.focus();
+    return;
+  }
+  if(ev.target.id!=="code-form") return;
+  ev.preventDefault();
+  const v=(document.getElementById("f-code").value||"").trim().toUpperCase();
+  if(hashCode(v)===PROF_HASH){
+    S.isTeacher=true; S.codeErr=false; LS.set("mesb-prof",PROF_HASH); S.route="prof";
+    if(S.room) S.room.presence({role:"prof",key:null,ans:null}).catch(()=>{});
+    if(S.room && S.stateKnown) S.room.emit("state",S.state).catch(()=>{});
+  } else S.codeErr=true;
+  render();
+});
+function projView(){
+  const parts = (S.isTeacher && S.drawer) ? teacherView(true) : null;
+  return `<main class="wrap">${stageContent(true)}</main>
+  ${parts?`<aside class="drawer" aria-label="Commandes de la séance"><div class="row"><h2>Commandes</h2><span class="spacer"></span><button class="btn" data-action="drawer">Masquer</button></div>${parts.controls}<div class="card"><div class="eyebrow">Suivi des étudiants</div>${parts.prog}</div></aside>`:""}
+  <div class="proj-bar">${S.isTeacher?`<button class="btn" data-action="prev">←</button><button class="btn" data-action="next">→</button><button class="btn" data-action="drawer" aria-pressed="${!!S.drawer}">Commandes et suivi</button><button class="btn" data-action="corrige" aria-pressed="${S.state.corrige}">Corrigé</button>`:""}<button class="btn" data-action="fullscreen">Plein écran</button>${S.isTeacher?`<button class="btn" data-action="unproj">Quitter</button>`:""}</div>`;
+}
+
+/* ======================= RENDU ======================= */
+let pendingRender=false;
+function render(){
+  const ae=document.activeElement;
+  if(ae && (ae.tagName==="TEXTAREA"||(ae.tagName==="INPUT"&&(ae.type==="text"||ae.type==="password"))) && document.getElementById("app").contains(ae)){ pendingRender=true; return; }
+  pendingRender=false;
+  let r=S.route;
+  if(S.proj) r="projection";
+  if(!r) r = S.isTeacher ? "prof" : "etudiant";
+  document.body.classList.toggle("proj", r==="projection");
+  document.body.classList.toggle("has-drawer", r==="projection" && S.isTeacher && !!S.drawer);
+  const y=window.scrollY;
+  document.getElementById("app").innerHTML = r==="prof" ? teacherView() : r==="projection" ? projView() : studentView();
+  window.scrollTo(0,y);
+  const qr=document.getElementById("qr");
+  if(qr && !qr.hasChildNodes() && window.QRCode){ try{ new QRCode(qr,{text:location.origin+location.pathname,width:220,height:220,correctLevel:QRCode.CorrectLevel.M}); }catch(e){} }
+}
+document.addEventListener("focusout", ()=>{ setTimeout(()=>{ if(pendingRender) render(); }, 50); });
+
+function openGloss(g){
+  const G=GLOSS[g]; if(!G) return;
+  document.getElementById("modal-title").textContent=G[0];
+  document.getElementById("modal-body").innerHTML=`<p>${esc(G[1])}</p>${seuilsHtml(g)}`;
+  document.getElementById("modal").classList.add("open");
+  document.getElementById("modal-close").focus();
+}
+function closeModal(){ document.getElementById("modal").classList.remove("open"); }
+
+document.addEventListener("click", ev=>{
+  const b=ev.target.closest("[data-action]");
+  if(!b){ if(ev.target.id==="modal") closeModal(); return; }
+  const a=b.dataset.action;
+  const m=S.mine;
+  switch(a){
+    case "gloss": openGloss(b.dataset.g); break;
+    case "close-modal": closeModal(); break;
+    case "tab": S.tab=b.dataset.tab; render(); window.scrollTo(0,0); break;
+    case "pick": S.me=b.dataset.k; LS.set("mesb-me",S.me); loadMine(); if(S.room) S.room.presence({role:"etudiant",key:S.me,ans:S.mine}).catch(()=>{}); S.route="etudiant"; render(); break;
+    case "change-me": S.me=null; LS.del("mesb-me"); if(S.room) S.room.presence({role:null,key:null,ans:null}).catch(()=>{}); render(); break;
+    case "route": S.route=b.dataset.r; try{ location.hash=b.dataset.r; }catch(e){} render(); break;
+    case "vote": { const i=+b.dataset.i; m.v=m.v.includes(i)?m.v.filter(x=>x!==i):m.v.concat(i).sort(); saveMine(); render(); break; }
+    case "ready": m.r=!m.r; saveMine(); render(); break;
+    case "expert": { const f=currentFoin(); if(!f) break; m.e[f]=Object.assign({l:"",n:""},m.e[f],{l:b.dataset.c}); saveMine(); render(); break; }
+    case "verdict": { const f=currentFoin(); if(!f) break; m.d[f]=Object.assign({c:"",n:""},m.d[f],{c:b.dataset.c}); saveMine(); render(); break; }
+    case "ticket": m.k[b.dataset.q]=b.dataset.x; saveMine(); render(); break;
+    case "auto-step": if(S.autonome){ S.state=Object.assign({},S.state,{step:b.dataset.step}); LS.set("mesb-step",b.dataset.step); render(); window.scrollTo(0,0); } break;
+    case "prev": if(stepIdx()>0) setState({step:STEPS[stepIdx()-1].id}); break;
+    case "next": if(stepIdx()<STEPS.length-1) setState({step:STEPS[stepIdx()+1].id}); break;
+    case "goto": setState({step:b.dataset.step}); break;
+    case "corrige": setState({corrige:!S.state.corrige}); break;
+    case "achatq": setState({achatQ:+b.dataset.q}); break;
+    case "reveal-ins": setState({revealIns:!S.state.revealIns}); break;
+    case "ticket-reveal": setState({ticketReveal:!S.state.ticketReveal}); break;
+    case "proj": S.proj=true; render(); window.scrollTo(0,0); break;
+    case "unproj": S.proj=false; if(S.route==="projection"){ S.route="prof"; try{ history.replaceState(null,"",location.pathname+location.search); }catch(e){} } if(document.fullscreenElement){ document.exitFullscreen().catch(()=>{}); } render(); break;
+    case "fullscreen": try{ const p=document.documentElement.requestFullscreen(); if(p&&p.catch) p.catch(()=>{}); }catch(e){} break;
+    case "reset": S.confirmReset=true; render(); break;
+    case "drawer": S.drawer=!S.drawer; render(); break;
+    case "tedit": { const k=b.dataset.k, fld=b.dataset.field, c=b.dataset.c, f=currentFoin();
+      teacherEdit(k, a=>{
+        if(fld==="v"){ const i=+c; a.v=a.v.includes(i)?a.v.filter(x=>x!==i):a.v.concat(i).sort(); }
+        else if(fld==="el"&&f){ const cur=(a.e[f]||{}).l; a.e[f]=Object.assign({l:"",n:""},a.e[f],{l:cur===c?"":c}); }
+        else if(fld==="dc"&&f){ const cur=(a.d[f]||{}).c; a.d[f]=Object.assign({c:"",n:""},a.d[f],{c:cur===c?"":c}); }
+        else if(fld==="kf"||fld==="ke"){ const q=fld[1]; a.k[q]=a.k[q]===c?"":c; }
+      }); break; }
+    case "logout": (async()=>{ try{ await firebase.auth().signOut(); await firebase.auth().signInAnonymously(); }catch(e){} S.isTeacher=false; S.proj=false; S.route="etudiant"; render(); })(); break;
+    case "glogin": teacherLogin(); break;
+    case "reset-no": S.confirmReset=false; render(); break;
+    case "reset-yes": doReset(); break;
+  }
+});
+document.addEventListener("change", ev=>{
+  const el=ev.target;
+  if(el.dataset.action==="scribe"){ setState({scribe:el.value}); return; }
+  if(el.dataset.action==="assign"){
+    const k=el.dataset.k, kind=el.dataset.kind, val=el.value;
+    const asg={}; for(const x of KEYS) asg[x]=Object.assign({},assignOf(x));
+    const other=KEYS.find(x=>x!==k && asg[x][kind]===val);
+    if(other) asg[other][kind]=asg[k][kind];
+    asg[k][kind]=val;
+    setState({assign:asg});
+  }
+});
+document.addEventListener("input", ev=>{
+  const el=ev.target;
+  if(el.dataset.gfield!=null && S.isTeacher){ const g=(S.state.groupAns||["","","",""]).slice(); g[+el.dataset.gfield]=clip(el.value,600); setState({groupAns:g}, true); return; }
+  const fld=el.dataset.field; if(!fld) return;
+  if(fld==="lex"){ S.lexq=el.value; const l=document.getElementById("lex-list"); if(l) l.innerHTML=lexItems(); return; }
+  const m=S.mine; if(!m) return; const f=currentFoin();
+  if(fld==="vw") m.vw=clip(el.value,60);
+  else if(fld==="en"&&f) m.e[f]=Object.assign({l:"",n:""},m.e[f],{n:clip(el.value,100)});
+  else if(fld==="dn"&&f) m.d[f]=Object.assign({c:"",n:""},m.d[f],{n:clip(el.value,120)});
+  else if(fld==="kw") m.k.w=clip(el.value,140);
+  else if(/^a[0-3]$/.test(fld)) m.a[+fld[1]]=clip(el.value,400);
+  saveMine(true);
+});
+document.addEventListener("keydown", ev=>{
+  if(ev.key==="Escape"){ if(document.getElementById("modal").classList.contains("open")) closeModal(); else if(S.proj){ S.proj=false; render(); } return; }
+  if(S.proj && S.isTeacher && !/INPUT|TEXTAREA|SELECT/.test(ev.target.tagName)){
+    if(ev.key==="ArrowRight"&&stepIdx()<STEPS.length-1) setState({step:STEPS[stepIdx()+1].id});
+    if(ev.key==="ArrowLeft"&&stepIdx()>0) setState({step:STEPS[stepIdx()-1].id});
+  }
+});
+window.addEventListener("hashchange", ()=>{ S.route=location.hash.replace("#",""); render(); });
+
+async function doReset(){
+  S.confirmReset=false;
+  const session="S"+Date.now();
+  if(S.db){ for(const k of KEYS){ try{ await S.db.doc("answers/"+k).delete(); }catch(e){} } }
+  S.answers={}; S.presenceAns={};
+  setState({groupAns:["","","",""]});
+  setState({session, step:"accueil", corrige:false, revealIns:false, ticketReveal:false, achatQ:0});
+}
+
+boot();
+</script>
+</body>
+</html>
