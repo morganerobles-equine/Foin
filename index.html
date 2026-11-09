@@ -371,56 +371,6 @@ const LIGHT = {
   verdict:{v:["✓","Je garde"],o:["!","Je complète"],r:["✕","Je refuse"]}
 };
 
-/* ======================= CODES DE RÉPONSE =======================
-   Le téléphone d'un étudiant fonctionne sans compte et sans réseau : chaque réponse donne un code de 4 caractères
-   (étudiant, moment, réponse, clé de contrôle) que l'enseignante saisit dans son espace. */
-const ALPHC="ABCDEFGHJKMNPQRSTUVWXYZ23456789", BC=31, MODQ=BC*BC*BC, MULQ=7919, OFFQ=12345;
-const INVQ=(()=>{ for(let i=1;i<MODQ;i++) if((MULQ*i)%MODQ===1) return i; return 1; })();
-const CODE_KINDS=["accroche","A","B","C","ticket"];
-function encodeCode(kIdx, kind, val){
-  const n=(kIdx*5+kind)*16+val, x=(n*MULQ+OFFQ)%MODQ;
-  const d=[Math.floor(x/(BC*BC)), Math.floor(x/BC)%BC, x%BC];
-  const chk=(d[0]+2*d[1]+3*d[2]+kind)%BC;
-  return d.map(k=>ALPHC[k]).join("")+ALPHC[chk];
-}
-function decodeCode(raw){
-  const t=String(raw||"").toUpperCase().replace(/[^A-Z0-9]/g,"").replace(/0/g,"O").replace(/[IL1]/g,"");
-  if(t.length!==4) return null;
-  const d=[...t].map(ch=>ALPHC.indexOf(ch)); if(d.some(k=>k<0)) return null;
-  const x=(d[0]*BC+d[1])*BC+d[2];
-  const n=(((x-OFFQ)%MODQ+MODQ)%MODQ*INVQ)%MODQ;
-  const val=n%16, kind=Math.floor(n/16)%5, kIdx=Math.floor(n/80);
-  if(kIdx>=KEYS.length) return null;
-  if((d[0]+2*d[1]+3*d[2]+kind)%BC!==d[3]) return null;
-  if(kind>=1&&kind<=3&&val>8) return null;
-  if(kind===4&&val>3) return null;
-  return {k:KEYS[kIdx], kind, val};
-}
-const CI={v:0,o:1,r:2}, IC=["v","o","r"];
-function myCode(kind){
-  const m=S.mine, i=KEYS.indexOf(S.me); if(!m||i<0) return null;
-  if(kind===0){ if(!m.v.length) return null; return encodeCode(i,0,m.v.reduce((s,x)=>s|(1<<x),0)); }
-  if(kind>=1&&kind<=3){ const f=FOIN_KEYS[kind-1], e=m.e[f], d=m.d[f]; if(!e||!d||!isColor(e.l)||!isColor(d.c)) return null; return encodeCode(i,kind,CI[e.l]*3+CI[d.c]); }
-  if(kind===4){ if(!m.k.f||!m.k.e) return null; return encodeCode(i,4,(m.k.f==="refuse"?2:0)+(m.k.e==="refuse"?1:0)); }
-  return null;
-}
-function codeBox(kind, missing){
-  const c=myCode(kind);
-  return `<div class="card" style="border:2px dashed var(--hay);text-align:center"><div class="eyebrow">Code à donner à Morgane</div>${c?`<div style="font-family:var(--font-mono);font-size:2.4rem;letter-spacing:.18em;font-weight:500">${c}</div><p class="small muted">Dictez-le ou montrez votre écran : vos réponses s'afficheront au tableau.</p>`:`<p class="muted">${esc(missing)}</p>`}</div>`;
-}
-function applyCode(r){
-  const f=r.kind>=1&&r.kind<=3?FOIN_KEYS[r.kind-1]:null;
-  teacherEdit(r.k, a=>{
-    if(r.kind===0) a.v=[0,1,2,3].filter(i=>r.val&(1<<i));
-    else if(f){ a.e[f]=Object.assign({l:"",n:""},a.e[f],{l:IC[Math.floor(r.val/3)]}); a.d[f]=Object.assign({c:"",n:""},a.d[f],{c:IC[r.val%3]}); }
-    else if(r.kind===4){ a.k.f=(r.val&2)?"refuse":"garde"; a.k.e=(r.val&1)?"refuse":"garde"; }
-  });
-  const what = r.kind===0 ? "accroche : "+[0,1,2,3].filter(i=>r.val&(1<<i)).map(i=>ACCROCHE[i].toLowerCase()).join(", ")
-    : f ? "foin "+f+" : expert "+LIGHT.expert[IC[Math.floor(r.val/3)]][1].toLowerCase()+", verdict « "+LIGHT.verdict[IC[r.val%3]][1].toLowerCase()+" »"
-    : "ticket : foin "+((r.val&2)?"refusé":"gardé")+", enrubanné "+((r.val&1)?"refusé":"gardé");
-  return NAME[r.k]+" · "+what;
-}
-
 /* ======================= ÉTAT ======================= */
 const S = {
   route:"", me:null, tab:"seance", mine:null,
@@ -707,7 +657,7 @@ function stageContent(forProj, preview){
   switch(st){
     case "accueil": return `<div class="card"><div class="eyebrow">MS MESB · Nutrition équine · CM 4</div><h1>Même prairie, trois bottes : lequel j'achète, et pour qui ?</h1>
       <div class="row" style="align-items:center;gap:24px"><div id="qr" style="width:236px;height:236px;background:#fff;padding:8px;border-radius:8px"></div>
-      <div class="stack"><p>Scannez le code avec votre téléphone (pas besoin de compte), ou ouvrez :</p><p style="font-family:var(--font-mono);font-size:.9em;word-break:break-all">${esc(location.origin+location.pathname)}</p><p class="muted">Choisissez votre nom : vos réponses s'afficheront au tableau.</p></div></div>
+      <div class="stack"><p>Scannez le code avec votre téléphone (pas besoin de compte), ou ouvrez :</p><p style="font-family:var(--font-mono);font-size:.9em;word-break:break-all">${esc(location.origin+location.pathname)}</p><p class="muted">Choisissez votre nom : vos réponses s'afficheront au tableau en direct.</p></div></div>
       <div class="names">${STUDENTS.map(s=>`<div class="pill" style="justify-content:flex-start;padding:10px 14px;font-size:1rem">${esc(s.name)}</div>`).join("")}</div></div>`;
     case "accroche": return `<div class="card"><div class="eyebrow">Accroche</div><h1>Vous achetez du foin pour votre écurie. Comment savez-vous qu'il est bon ?</h1>${voteBars()}</div>`;
     case "adoption": return `<div class="card"><div class="eyebrow">Adoption</div><h1>Un cheval et une question d'expert chacun</h1>
@@ -751,7 +701,7 @@ function studentSeance(){
     case "accroche": body=`<div class="card hl"><div class="eyebrow">Accroche</div><h2>Vous achetez du foin pour votre écurie. Comment savez-vous qu'il est bon ?</h2>
       <p class="muted small">Plusieurs réponses possibles.</p>
       <div class="stack">${ACCROCHE.map((o,i)=>`<button class="btn" data-action="vote" data-i="${i}" aria-pressed="${m.v.includes(i)}">${esc(o)}</button>`).join("")}</div>
-      <label class="lbl" for="f-vw">Un mot pour expliquer votre choix</label><input type="text" id="f-vw" data-field="vw" maxlength="60" value="${esc(m.vw)}"></div>${codeBox(0,"Choisissez au moins une réponse pour obtenir votre code.")}`; break;
+      <label class="lbl" for="f-vw">Un mot pour expliquer votre choix</label><input type="text" id="f-vw" data-field="vw" maxlength="60" value="${esc(m.vw)}"></div>`; break;
     case "adoption": body=`<div class="card hl"><div class="eyebrow">Adoption</div><h2>Voici votre cheval et votre question d'expert</h2><p>Lisez les deux cartes, puis appuyez sur le bouton.</p>
       <button class="btn ${m.r?"":"primary"}" data-action="ready" aria-pressed="${m.r}">${m.r?"✓ J'ai lu mes cartes":"J'ai lu mes cartes"}</button></div>${horseCard(a.h)}${expertCard(a.e)}`; break;
     case "mancheA": case "mancheB": case "mancheC": {
@@ -766,7 +716,7 @@ function studentSeance(){
         <div class="lights">${["v","o","r"].map(c=>`<button class="light ${c}" data-action="verdict" data-c="${c}" aria-pressed="${vd.c===c}"><span class="ic">${LIGHT.verdict[c][0]}</span>${LIGHT.verdict[c][1]}</button>`).join("")}</div>
         <label class="lbl" for="f-dn">Pourquoi ? (une phrase)</label><input type="text" id="f-dn" data-field="dn" maxlength="120" value="${esc(vd.n||"")}">
         <p class="small muted">Rappel : ${esc(H.besoins[0].toLowerCase())}.</p></div>
-        ${codeBox(FOIN_KEYS.indexOf(f)+1,"Donnez votre avis d'expert (étape 1) et votre décision (étape 2) pour obtenir votre code.")}`; break; }
+        `; break; }
     case "revelation": body=stageContent(false); break;
     case "vitamines": body=stageContent(false); break;
     case "achat": { const sc=S.state.scribe, isSc=S.autonome||sc===S.me, ga=isSc?m:ansOf(sc);
@@ -781,7 +731,7 @@ function studentSeance(){
       <div class="stack"><strong>Si c'est un foin :</strong><div class="row">${["garde","refuse"].map(x=>`<button class="btn" data-action="ticket" data-q="f" data-x="${x}" aria-pressed="${m.k.f===x}">${x==="garde"?"Je le garde":"Je le refuse"}</button>`).join("")}</div></div>
       <div class="stack"><strong>Si c'est un ${term("enrubanne","enrubanné")} :</strong><div class="row">${["garde","refuse"].map(x=>`<button class="btn" data-action="ticket" data-q="e" data-x="${x}" aria-pressed="${m.k.e===x}">${x==="garde"?"Je le garde":"Je le refuse"}</button>`).join("")}</div></div>
       <label class="lbl" for="f-kw">Pourquoi ?</label><input type="text" id="f-kw" data-field="kw" maxlength="140" value="${esc(m.k.w)}">
-      ${codeBox(4,"Répondez aux deux questions pour obtenir votre code.")}
+      
       ${S.state.ticketReveal?`<div class="reveal">Un foin à 82 % de MS est trop humide (seuil 85 %) : on le refuse. Pour un enrubanné (seuil 50 %), 82 % c'est très sec : on le garde.</div>`:""}</div>`; break;
   }
   return autonomeBar+body;
@@ -873,9 +823,7 @@ function entryPanel(){
       return `<tr><td><strong>${esc(FIRST(k))}</strong><div class="small muted">${esc(EXPERTS[as.e].titre)} · ${esc(HORSES[as.h].nom)}</div></td><td><div class="row" style="gap:4px">${lightBtns(k,"expert",e.l,"el")}</div></td><td><div class="row" style="gap:4px">${lightBtns(k,"verdict",d.c,"dc")}</div></td></tr>`;}).join("")}</tbody></table></div>`;
   else if(st==="achat") body=ACHAT.map((x,i)=>`<label class="lbl" for="g-a${i}">${i+1}. ${esc(x.q)}</label><textarea id="g-a${i}" data-gfield="${i}" maxlength="600">${esc((S.state.groupAns||[])[i]||"")}</textarea>`).join("");
   else if(st==="cloture") body=`<div class="tbl"><table><thead><tr><th>Étudiant</th><th>Si c'est un foin</th><th>Si c'est un enrubanné</th></tr></thead><tbody>${KEYS.map(k=>{const a=ansOf(k)||emptyAns(); const b=(q)=>["garde","refuse"].map(x=>`<button class="btn small" data-action="tedit" data-k="${k}" data-field="k${q}" data-c="${x}" aria-pressed="${a.k[q]===x}">${x==="garde"?"Garde":"Refuse"}</button>`).join(" "); return `<tr><td>${esc(FIRST(k))}</td><td>${b("f")}</td><td>${b("e")}</td></tr>`;}).join("")}</tbody></table></div>`;
-  const codeForm=`<form id="codein-form" class="row" autocomplete="off"><label class="lbl" for="f-codein">Code d'un étudiant</label><input type="text" id="f-codein" maxlength="9" style="width:9em;font-family:var(--font-mono);font-size:1.1rem;letter-spacing:.12em;text-transform:uppercase" placeholder="ex. K7PA"><button class="btn primary" type="submit">Valider</button></form>
-    ${S.codeMsg?`<div class="banner ${S.codeMsg.bad?"bad":""}" role="status">${esc(S.codeMsg.t)}</div>`:""}`;
-  return `<div class="card hl"><div class="eyebrow">Saisie des réponses de la classe</div><p class="small muted">Tapez le code affiché sur le téléphone de l'étudiant, ou cliquez directement ses choix ci-dessous. L'écran projeté se met à jour aussitôt.</p>${codeForm}${body}</div>`;
+  return `<div class="card hl"><div class="eyebrow">Saisie des réponses de la classe</div><p class="small muted">Les réponses envoyées depuis les téléphones s'affichent ici en direct. Si un téléphone ne fonctionne pas, cliquez directement les choix de l'étudiant.</p>${body}</div>`;
 }
 function isTeacherUser(u){ return !!(u && !u.isAnonymous && u.email && TEACHER_EMAIL && u.email.toLowerCase()===TEACHER_EMAIL.toLowerCase()); }
 async function teacherLogin(){
@@ -902,14 +850,6 @@ function codeViewOld(){
     <div class="row"><button class="btn primary" type="submit">Ouvrir</button><button class="btn ghost" type="button" data-action="route" data-r="etudiant">Retour</button></div></form></main>`;
 }
 document.addEventListener("submit", ev=>{
-  if(ev.target.id==="codein-form"){
-    ev.preventDefault();
-    const inp=document.getElementById("f-codein"), r=decodeCode(inp.value);
-    if(r) S.codeMsg={t:"✓ "+applyCode(r)}; else S.codeMsg={bad:true,t:"Code « "+inp.value+" » non reconnu. Vérifiez les caractères (il en faut 4)."};
-    inp.value=""; inp.blur(); render();
-    const n=document.getElementById("f-codein"); if(n) n.focus();
-    return;
-  }
   if(ev.target.id!=="code-form") return;
   ev.preventDefault();
   const v=(document.getElementById("f-code").value||"").trim().toUpperCase();
