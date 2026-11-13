@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lire une analyse de foin · UniLaSalle Rouen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Barlow+Condensed:wght@700;800&family=IBM+Plex+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+/* Aux couleurs d'UniLaSalle Rouen (masque 2024) : violet #A14593, noir #231F20, gris clair #F3F4F4, Nunito.
+   Organisation reprise de l'appli « Placentologie » : une colonne, onglets collants, une activité à la fois.
+   Les feux vert / orange / rouge restent réservés aux verdicts. */
+:root{
+  --bg:#F3F4F4; --surface:#ffffff; --ink:#231F20; --muted:#5d5759; --line:#dcdcde;
+  --accent:#A14593; --accent-dark:#6f2c65; --accent-soft:#f4e6f1;
+  --ok:#2b7a4b; --ok-soft:#dff0e5; --warn:#b86a00; --warn-soft:#fbe9cc; --bad:#b83226; --bad-soft:#f8dcd8;
+  --stom:#d08a2e; --si:#4f86a8; --li:#5c9a5f; --mouth:#A14593;
+  /* « mondes » des cartes */
+  --w1:#A14593; --w1d:#6f2c65; --w1s:#f4e6f1;
+  --w2:#c27a2c; --w2d:#7a4a14; --w2s:#fbecd9;
+  --w3:#4f86a8; --w3d:#2a5672; --w3s:#e1edf5;
+  --w4:#5c9a5f; --w4d:#335f36; --w4s:#e2f0e2;
+  --f-display:"Barlow Condensed","Arial Narrow","Nunito",sans-serif;
+  --f-body:"Nunito","Segoe UI",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.45;-webkit-tap-highlight-color:transparent}
+button{font:inherit;color:inherit}
+button:focus-visible,[tabindex]:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+/* en-tête */
+.head{background:var(--accent);color:#fff;position:relative;overflow:hidden}
+.head::after{content:"";position:absolute;right:-40px;bottom:-50px;width:150px;height:120px;border-right:34px solid rgba(255,255,255,.12);border-bottom:34px solid rgba(255,255,255,.12);border-bottom-right-radius:34px}
+.head .in{position:relative;z-index:1;max-width:640px;margin:0 auto;padding:16px 16px 14px;display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
+.head h1{margin:0;font-family:var(--f-display);font-weight:800;font-size:28px;line-height:1;text-transform:uppercase}
+.head .sub{font-size:13px;font-weight:700;opacity:.9}
+.head img{height:40px;width:auto;display:block}
+.app{max-width:640px;margin:0 auto;padding:0 16px 32px;display:flex;flex-direction:column;gap:14px}
+.bar{position:sticky;top:0;z-index:5;background:var(--bg);padding-block:10px 6px}
+.tabs{display:grid;grid-template-columns:repeat(7,1fr);background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:4px;gap:3px}
+.tabs button{border:0;background:transparent;padding:9px 2px;border-radius:8px;font-weight:800;font-size:13px;cursor:pointer;color:var(--muted)}
+.tabs button[aria-selected="true"]{background:var(--accent);color:#fff}
+@media (max-width:560px){.tabs{grid-template-columns:repeat(4,1fr)}}
+.row{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.seg{display:inline-flex;flex-wrap:wrap;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--surface)}
+.seg button{border:0;background:transparent;padding:6px 11px;font-size:13px;font-weight:800;cursor:pointer;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:#fff}
+.lbl{font-size:12px;color:var(--muted);font-weight:800;letter-spacing:.05em;text-transform:uppercase}
+.btn{border:1.5px solid var(--line);background:var(--surface);border-radius:12px;padding:12px 14px;font-weight:800;cursor:pointer;min-height:48px}
+.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn.ok{background:var(--ok-soft);border-color:var(--ok)}
+.btn.bad{background:var(--bad-soft);border-color:var(--bad)}
+.btn:disabled{opacity:.45;cursor:default}
+.muted{color:var(--muted);font-size:13.5px}
+.stack{display:grid;gap:14px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;display:grid;gap:12px;min-width:0}
+.ptitle{font-family:var(--f-display);font-weight:800;font-size:24px;line-height:1.05;margin:0;text-wrap:balance;text-transform:uppercase}
+.progress{height:6px;background:var(--line);border-radius:99px;overflow:hidden}
+.progress i{display:block;height:100%;background:var(--accent);width:0;transition:width .3s}
+.counter{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.headrow{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap}
+.lv{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;padding:2px 8px;border-radius:99px;border:1.5px solid currentColor;line-height:1.4;white-space:nowrap}
+.lv.A{border-style:dashed;opacity:.8}
+.manager{border-left:5px solid var(--accent);background:var(--accent-soft);padding:10px 14px;border-radius:0 8px 8px 0;font-size:15px}
+/* schéma */
+.fig{position:relative;margin:0}
+.fig img{width:100%;height:auto;display:block}
+.pin{position:absolute;transform:translate(-50%,-50%);display:flex;align-items:center;gap:6px;border:0;background:transparent;padding:0;cursor:pointer}
+.pin .d{width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;font-weight:900;font-size:.8rem;display:grid;place-items:center;border:3px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.35)}
+.pin .t{background:#fff;font-weight:800;font-size:.78rem;padding:2px 8px;border-radius:999px;box-shadow:0 1px 3px rgba(0,0,0,.25);white-space:nowrap}
+.pin[aria-pressed="true"] .d{background:var(--ink);transform:scale(1.15)}
+.pin[aria-pressed="true"] .t{background:var(--ink);color:#fff}
+.lab{position:absolute;transform:translate(-50%,-50%);background:#fff;border:2px solid var(--ink);font-weight:800;font-size:.76rem;padding:3px 8px;border-radius:8px;line-height:1.2;text-align:center;width:max-content;max-width:46%;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.lab small{display:block;font-weight:600;color:var(--muted)}
+.lab.v{border-color:var(--ok)} .lab.o{border-color:var(--warn)} .lab.r{border-color:var(--bad)}
+@media (max-width:560px){.pin .t{display:none}.lab{font-size:.66rem;padding:2px 5px}.lab small{display:none}}
+.tract{display:flex;height:50px;border-radius:10px;overflow:hidden;border:1px solid var(--line)}
+.tract button{border:0;color:#fff;font-weight:800;font-size:.8rem;padding:0 6px;cursor:pointer;opacity:.85;line-height:1.1}
+.tract button[aria-pressed="true"]{opacity:1;box-shadow:inset 0 -5px 0 rgba(0,0,0,.35)}
+.fact{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;align-items:baseline;font-size:15px}
+.fact .k{font-weight:900;color:var(--accent);white-space:nowrap}
+@media (max-width:560px){.fact{grid-template-columns:1fr;gap:0}}
+/* cartes */
+.scene{perspective:1400px}
+.flip{position:relative;display:grid;cursor:pointer;transition:transform .55s cubic-bezier(.2,.7,.2,1);transform-style:preserve-3d;min-height:380px;border-radius:18px}
+.flip.on{transform:rotateY(180deg)}
+.side{grid-area:1/1;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:18px;padding:10px;background:var(--c);display:flex}
+.side.back{transform:rotateY(180deg)}
+.w1{--c:var(--w1);--d:var(--w1d);--s:var(--w1s)} .w2{--c:var(--w2);--d:var(--w2d);--s:var(--w2s)} .w3{--c:var(--w3);--d:var(--w3d);--s:var(--w3s)} .w4{--c:var(--w4);--d:var(--w4d);--s:var(--w4s)}
+.face{background:var(--s);border-radius:11px;flex:1;display:flex;flex-direction:column;gap:9px;padding:14px;min-width:0}
+.stage{font-size:11px;font-weight:900;letter-spacing:.07em;text-transform:uppercase;color:var(--d)}
+.nm{font-family:var(--f-display);font-weight:800;font-size:34px;line-height:1;margin:0;text-transform:uppercase;overflow-wrap:break-word}
+.tagc{font-family:var(--f-mono);font-size:13px;color:var(--muted)}
+.plate{background:#fff;border:3px solid var(--c);border-radius:10px;padding:16px 14px;font-size:17px;line-height:1.35;text-align:center;font-weight:800}
+.hint{margin-top:auto;font-size:13px;color:var(--muted);text-align:center}
+.blk h3{margin:0 0 2px;font-size:11px;font-weight:900;letter-spacing:.07em;text-transform:uppercase;color:var(--d)}
+.blk p,.blk ul{margin:0;font-size:14.5px;line-height:1.38}
+.blk ul{padding-left:18px}
+.judge{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.nav{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center}
+.nav .mid{text-align:center;font-size:13px;color:var(--muted)}
+/* quiz */
+.qtext{font-size:19px;font-weight:800;line-height:1.3;margin:0;text-wrap:balance}
+.qcat{font-size:12px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--accent)}
+.opts{display:grid;gap:9px}
+.opt{text-align:left;border:1.5px solid var(--line);background:var(--bg);border-radius:12px;padding:12px 14px;min-height:50px;cursor:pointer;font-size:15.5px;display:flex;gap:10px;align-items:flex-start}
+.opt b{font-family:var(--f-mono);font-size:13px;color:var(--muted);flex:none;padding-top:2px}
+.opt[aria-pressed="true"]{border-color:var(--ink)}
+.opt.right{border-color:var(--ok);background:var(--ok-soft)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opt.miss{border-color:var(--ok);border-style:dashed}
+.opt:disabled{cursor:default}
+.fb{border-radius:12px;padding:11px 13px;font-size:14.5px;line-height:1.4}
+.fb.ok{background:var(--ok-soft);border-left:4px solid var(--ok)}
+.fb.bad{background:var(--bad-soft);border-left:4px solid var(--bad)}
+.fb strong{display:block;margin-bottom:2px}
+.score{font-family:var(--f-display);font-weight:800;font-size:60px;line-height:1;text-align:center;font-variant-numeric:tabular-nums}
+.review{display:grid;gap:8px;font-size:14px}
+.review div{border-left:3px solid var(--bad);padding-left:10px}
+.review small{color:var(--muted)}
+/* tri */
+.pool{display:flex;flex-wrap:wrap;gap:8px;min-height:44px}
+.chip{border:1.5px solid var(--line);background:var(--bg);border-radius:99px;padding:8px 13px;font-size:14.5px;font-weight:800;cursor:pointer;min-height:40px}
+.chip[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.chip.right{background:var(--ok-soft);border-color:var(--ok)}
+.chip.wrong{background:var(--bad-soft);border-color:var(--bad)}
+.bins{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.bin{border:2px dashed var(--line);border-radius:14px;padding:10px;display:grid;gap:8px;align-content:start;min-height:96px;cursor:pointer;min-width:0}
+.bin.armed{border-color:var(--accent);border-style:solid}
+.bin h3{margin:0;font-size:13px;font-weight:900;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.bin .pool{min-height:0}
+/* ordre */
+.steps{list-style:none;margin:0;padding:0;display:grid;gap:8px;counter-reset:s}
+.steps li{display:grid;grid-template-columns:28px 1fr auto;gap:10px;align-items:center;background:var(--bg);border:1.5px solid var(--line);border-radius:12px;padding:9px 10px;counter-increment:s}
+.steps li::before{content:counter(s);font-family:var(--f-mono);font-weight:700;font-size:14px;color:var(--muted);text-align:center}
+.steps li.right{border-color:var(--ok);background:var(--ok-soft)}
+.steps li.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.steps li span{font-size:15px;line-height:1.3;min-width:0}
+.mv{display:flex;gap:4px}
+.mv button{border:1px solid var(--line);background:var(--surface);border-radius:8px;width:38px;height:38px;cursor:pointer;font-weight:800}
+.mv button:disabled{opacity:.35;cursor:default}
+/* simulations */
+input[type=range]{width:100%;accent-color:var(--accent)}
+select{border:1px solid var(--line);border-radius:8px;background:var(--bg);padding:8px 10px;font:inherit}
+.sim label{font-weight:800}
+.readout{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}
+.readout div{background:var(--bg);border-radius:10px;padding:8px 10px}
+.readout b{display:block;font-family:var(--f-display);font-weight:800;font-size:26px;font-variant-numeric:tabular-nums}
+.readout span{font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;font-weight:800}
+.verdict{border-radius:10px;padding:10px 14px;font-weight:800;border:1.5px solid}
+.verdict.v{color:var(--ok);background:var(--ok-soft)} .verdict.o{color:var(--warn);background:var(--warn-soft)} .verdict.r{color:var(--bad);background:var(--bad-soft)}
+.verdict span{color:var(--ink);font-weight:600}
+.day{display:grid;grid-template-columns:repeat(24,1fr);gap:2px}
+.day .h{display:grid;gap:2px}
+.day button{border:1px solid var(--line);background:var(--bg);height:30px;border-radius:4px;padding:0;font-size:.7rem;cursor:pointer}
+.day button.hay{background:var(--li);border-color:var(--li);color:#fff}
+.day button.conc{background:var(--stom);border-color:var(--stom);color:#fff;font-weight:900}
+.day button.conc.hay{background:linear-gradient(180deg,var(--li) 0 50%,var(--stom) 50% 100%)}
+.day .ph{height:10px;border-radius:3px}
+.day .hl{font-size:.6rem;color:var(--muted);text-align:center;font-family:var(--f-mono)}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:.82rem;color:var(--muted)}
+.sw{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:5px}
+.gauge{position:relative;height:18px;border-radius:9px;background:linear-gradient(90deg,var(--ok) 0 25%,var(--warn) 25% 50%,var(--bad) 50% 100%)}
+.gauge .needle{position:absolute;top:-6px;width:4px;height:30px;background:var(--ink);border-radius:2px;transform:translateX(-2px)}
+.gauge-l{display:flex;justify-content:space-between;font-size:.72rem;color:var(--muted);font-family:var(--f-mono)}
+/* objectifs */
+.part h2{font-family:var(--f-display);font-weight:800;font-size:22px;margin:0;text-transform:uppercase}
+.obj{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:start;padding-block:10px;border-top:1px solid var(--line)}
+.obj input{width:22px;height:22px;margin:2px 0 0;accent-color:var(--ok)}
+.obj p{margin:0;font-size:15px;line-height:1.38}
+.obj .meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:6px}
+.acts button{border:1px solid var(--line);background:var(--bg);border-radius:99px;padding:5px 11px;font-size:12.5px;font-weight:800;cursor:pointer;min-height:32px}
+.sum{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sum div{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.sum b{font-family:var(--f-display);font-weight:800;font-size:28px;font-variant-numeric:tabular-nums}
+.sum span{display:block;font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:.04em}
+footer{font-size:12px;color:var(--muted);text-align:center;padding-top:6px}
+@media (prefers-reduced-motion:reduce){.flip,.progress i{transition:none}}
+
+/* propre à la révision « analyse de foin » */
+.fiche{width:100%;border-collapse:collapse;font-size:15px}
+.fiche th,.fiche td{padding:7px 10px;border-bottom:1px solid var(--line);text-align:left}
+.fiche th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.fiche td.val{font-family:var(--f-mono);text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.fiche td.unit{color:var(--muted);font-size:13px;white-space:nowrap}
+.fiche tr.hlrow td{background:var(--accent-soft)} .fiche tr.hlrow td:first-child{box-shadow:inset 4px 0 0 var(--accent)}
+.fiche tr.other td{color:var(--muted)} .fiche tr.grp td{background:var(--bg);font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.term{border:0;background:none;padding:0;font-weight:800;text-decoration:underline dotted var(--accent);text-decoration-thickness:2px;text-underline-offset:3px;cursor:pointer;text-align:left}
+.term::after{content:" ⓘ";color:var(--accent)}
+.banner{border-radius:10px;padding:10px 14px;background:var(--accent-soft);border:1px solid var(--accent);font-size:14.5px}
+.banner ul.clean{margin:4px 0 0;padding-left:1.1em}
+.chipc{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:3px 10px;font-weight:800;font-size:13px;border:1.5px solid currentColor;white-space:nowrap}
+.chipc.v{color:var(--ok);background:var(--ok-soft)} .chipc.o{color:var(--warn);background:var(--warn-soft)} .chipc.r{color:var(--bad);background:var(--bad-soft)}
+.grid5{display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}
+.mini{background:var(--bg);border-radius:10px;padding:9px 10px;display:grid;gap:6px;align-content:start;font-size:13.5px}
+.mini .q{font-weight:800;font-size:13.5px;line-height:1.25}
+.sliders{display:grid;gap:4px}
+.sliders label{font-weight:800;font-size:14px;margin-top:6px}
+.num{font-family:var(--f-mono)}
+.mx{border-collapse:separate;border-spacing:6px;width:100%}
+.mx th{font-size:12px;color:var(--muted);text-align:left}
+.mx td{vertical-align:top}
+.cell{width:100%;min-height:44px;border:1.5px dashed var(--line);background:var(--bg);border-radius:10px;cursor:pointer;padding:6px}
+.cell.okc{border:2px solid var(--ok)} .cell.koc{border:2px solid var(--bad)}
+.exp{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.3}
+.modal{position:fixed;inset:0;background:rgba(20,10,20,.45);display:flex;align-items:flex-end;justify-content:center;padding:16px;z-index:50}
+.modal .box{background:var(--surface);border-radius:16px;max-width:520px;width:100%;padding:18px;display:grid;gap:10px;max-height:80vh;overflow:auto}
+@media (min-width:640px){.modal{align-items:center}}
+</style>
+
+</head>
+<body>
+<header class="head"><div class="in"><div><h1>Lire une analyse de foin</h1><div class="sub">Révision · Mastère Spécialisé MESB · Même prairie, trois bottes</div></div><img src="data:image/png;base64,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" alt="UniLaSalle Rouen, École Vétérinaire et Bio-ingénieurs"></div></header>
+<div class="app">
+  <div class="bar">
+    <div class="tabs" role="tablist" aria-label="Activités">
+      <button type="button" role="tab" id="t-ana" aria-selected="true">Analyses</button>
+      <button type="button" role="tab" id="t-cards" aria-selected="false">Cartes</button>
+      <button type="button" role="tab" id="t-quiz" aria-selected="false">Quiz</button>
+      <button type="button" role="tab" id="t-sort" aria-selected="false">Tri</button>
+      <button type="button" role="tab" id="t-order" aria-selected="false">Ordre</button>
+      <button type="button" role="tab" id="t-sim" aria-selected="false">Simu</button>
+      <button type="button" role="tab" id="t-obj" aria-selected="false">Objectifs</button>
+    </div>
+  </div>
+
+  <!-- ===== Analyses ===== -->
+  <section id="p-ana" class="stack">
+    <div class="row"><span class="lbl">Foin</span><div class="seg" role="group" aria-label="Foin" id="ana-f"></div></div>
+    <div class="row"><span class="lbl">Question d'expert</span><div class="seg" role="group" aria-label="Question d'expert" id="ana-e"></div></div>
+    <div id="ana-box" class="stack"></div>
+  </section>
+
+  <!-- ===== Cartes ===== -->
+  <section id="p-cards" class="stack" hidden>
+    <div class="row" style="justify-content:space-between">
+      <div class="row"><span class="lbl">Paquet</span><div class="seg" role="group" aria-label="Paquet de cartes" id="deck-seg"></div></div>
+      <div class="row"><span class="lbl">Niveau</span><div class="seg" role="group" aria-label="Niveau des cartes" id="c-lvl"></div></div>
+      <div class="row"><span class="lbl">Recto</span><div class="seg" role="group" aria-label="Recto de la carte" id="c-front"></div></div>
+    </div>
+    <div><div class="counter"><span id="c-pos"></span><span id="c-known"></span></div><div class="progress" aria-hidden="true"><i id="c-bar"></i></div></div>
+    <div class="scene"><div class="flip" id="flip" tabindex="0" role="button" aria-label="Retourner la carte"></div></div>
+    <p class="muted" id="empty-rev" hidden>Aucune carte marquée « À revoir » dans ce paquet.</p>
+    <div class="judge"><button type="button" class="btn bad" id="j-no">À revoir</button><button type="button" class="btn ok" id="j-yes">Je sais</button></div>
+    <div class="nav"><button type="button" class="btn" id="n-prev" aria-label="Carte précédente">←</button><div class="mid">Touchez la carte pour la retourner<br><span class="muted">Clavier : espace, ← →</span></div><button type="button" class="btn" id="n-next" aria-label="Carte suivante">→</button></div>
+  </section>
+
+  <!-- ===== Quiz ===== -->
+  <section id="p-quiz" class="stack" hidden>
+    <div id="q-start" class="panel">
+      <p class="qtext">10 questions tirées au hasard</p>
+      <p class="muted" style="margin:0">QCM et vrai/faux, avec une explication après chaque réponse. Certaines questions ont plusieurs bonnes réponses : cochez-les toutes, puis validez.</p>
+      <div class="row"><span class="lbl">Niveau</span><div class="seg" role="group" aria-label="Niveau des questions" id="q-lvl"></div></div>
+      <div class="row"><span class="lbl">Partie</span><div class="seg" role="group" aria-label="Partie du cours" id="q-scope"></div></div>
+      <button type="button" class="btn primary" id="q-go">Commencer</button>
+      <p class="muted" id="q-best" style="margin:0"></p>
+    </div>
+    <div id="q-run" class="panel" hidden>
+      <div class="counter"><span id="q-num"></span><span id="q-sc"></span></div>
+      <div class="progress" aria-hidden="true"><i id="q-bar"></i></div>
+      <div class="headrow"><div class="qcat" id="q-cat"></div><span id="q-lv"></span></div>
+      <p class="qtext" id="q-text"></p>
+      <p class="muted" id="q-multi" style="margin:0" hidden>Plusieurs réponses possibles</p>
+      <div class="opts" id="q-opts"></div>
+      <button type="button" class="btn primary" id="q-valid" hidden>Valider</button>
+      <div id="q-fb" aria-live="polite"></div>
+      <button type="button" class="btn primary" id="q-next" hidden>Question suivante</button>
+    </div>
+    <div id="q-end" class="panel" hidden>
+      <div class="score" id="q-final"></div>
+      <p class="muted" style="text-align:center;margin:0" id="q-msg"></p>
+      <div class="review" id="q-review"></div>
+      <button type="button" class="btn primary" id="q-again">Nouveau quiz</button>
+    </div>
+  </section>
+
+  <!-- ===== Tri ===== -->
+  <section id="p-sort" class="stack" hidden>
+    <div class="row"><span class="lbl">Exercice</span><div class="seg" role="group" aria-label="Exercice de tri" id="s-seg"></div></div>
+    <div class="panel">
+      <div class="headrow"><h2 class="ptitle" id="s-title"></h2><span id="s-lv"></span></div>
+      <p class="muted" style="margin:0">Touchez une étiquette, puis la case où elle va. Touchez une étiquette déjà placée pour la remettre dans la réserve.</p>
+      <div class="pool" id="s-pool" aria-label="Étiquettes à classer"></div>
+      <div class="bins" id="s-bins"></div>
+      <div class="row"><button type="button" class="btn primary" id="s-check">Vérifier</button><button type="button" class="btn" id="s-reset">Recommencer</button></div>
+      <div id="s-fb" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <!-- ===== Ordre ===== -->
+  <section id="p-order" class="stack" hidden>
+    <div class="row"><span class="lbl">Séquence</span><div class="seg" role="group" aria-label="Séquence à ordonner" id="o-seg"></div></div>
+    <div class="panel">
+      <div class="headrow"><h2 class="ptitle" id="o-title"></h2><span id="o-lv"></span></div>
+      <p class="muted" style="margin:0">Remettez les étapes dans l'ordre avec les flèches, puis vérifiez.</p>
+      <ol class="steps" id="o-list"></ol>
+      <div class="row"><button type="button" class="btn primary" id="o-check">Vérifier</button><button type="button" class="btn" id="o-shuffle">Mélanger</button></div>
+      <div id="o-fb" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <!-- ===== Simulations ===== -->
+  <section id="p-sim" class="stack" hidden>
+    <div class="row"><span class="lbl">Simulation</span><div class="seg" role="group" aria-label="Simulation" id="sim-seg"></div></div>
+    <div id="sim-box"></div>
+  </section>
+
+  <!-- ===== Objectifs ===== -->
+  <section id="p-obj" class="stack" hidden>
+    <p class="muted" style="margin:0"><span class="lv I">Indispensable</span> à savoir pour l'examen · <span class="lv A">Bonus</span> pour aller plus loin. Cochez ce que vous savez faire, puis entraînez-vous sur le reste.</p>
+    <div class="sum"><div><b id="ob-i"></b><span>Indispensables maîtrisés</span></div><div><b id="ob-a"></b><span>Bonus maîtrisés</span></div></div>
+    <div class="stack" id="ob-list"></div>
+  </section>
+
+  <footer>D'après le CM 4 « Même prairie, trois bottes » et les analyses LANO réelles de l'ÉLEVEUR 1 (Morgane Robles). Votre progression reste enregistrée sur cet appareil uniquement.</footer>
+</div>
+<div class="modal" id="modal" hidden role="dialog" aria-modal="true" aria-labelledby="m-title"><div class="box"><div class="headrow"><h2 class="ptitle" id="m-title"></h2><button type="button" class="btn" id="m-close">Fermer</button></div><div id="m-body" class="stack"></div></div></div>
+
+<script>
+(function(){
+"use strict";
+/* ================= UTILITAIRES ================= */
+const $=s=>document.querySelector(s);
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+const lvChip=l=>`<span class="lv ${l}">${l==="I"?"Indispensable":"Bonus"}</span>`;
+const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fr=(v,d=0)=>Number(v).toLocaleString("fr-FR",{minimumFractionDigits:d,maximumFractionDigits:d});
+const store={get(k,d){try{const v=localStorage.getItem("foinrev."+k);return v?JSON.parse(v):d;}catch(e){return d;}},set(k,v){try{localStorage.setItem("foinrev."+k,JSON.stringify(v));}catch(e){}}};
+function segBuild(el,opts,cur,on){el.innerHTML="";opts.forEach(([v,l])=>{const b=document.createElement("button");b.type="button";b.textContent=l;b.dataset.v=v;b.setAttribute("aria-pressed",String(v===cur));b.addEventListener("click",()=>{[...el.children].forEach(x=>x.setAttribute("aria-pressed","false"));b.setAttribute("aria-pressed","true");on(v);});el.appendChild(b);});}
+
+/* ================= ONGLETS ================= */
+const TABS=[["t-ana","p-ana"],["t-cards","p-cards"],["t-quiz","p-quiz"],["t-sort","p-sort"],["t-order","p-order"],["t-sim","p-sim"],["t-obj","p-obj"]];
+function openTab(t){TABS.forEach(([t2,p2])=>{$("#"+t2).setAttribute("aria-selected",String(t2===t));$("#"+p2).hidden=(t2!==t);});store.set("tab",t);}
+TABS.forEach(([t])=>$("#"+t).addEventListener("click",()=>{openTab(t);}));
+
+
+const HORSES = {
+  poney:{nom:"Caramel", titre:"Poney de 200 kg à risque de fourbure", court:"Poney à risque de fourbure",
+    besoins:["Peu de sucres : c'est sa priorité absolue","Pas trop d'énergie : il grossit très facilement","Des fibres, pour mâcher longtemps sans trop manger"],
+    piege:"Un foin « trop bon » peut le rendre malade.", glos:["fourbure","SME"]},
+  jument:{nom:"Bella", titre:"Jument de 500 kg qui allaite son poulain de 2 mois", court:"Jument suitée",
+    besoins:["Beaucoup de protéines pour produire son lait","Beaucoup d'énergie","Un foin qu'elle mange en grande quantité"],
+    piege:"Un foin pauvre la fait maigrir et réduit son lait.", glos:["MADC"]},
+  sport:{nom:"Ulysse", titre:"Cheval de concours de 500 kg, au travail régulier", court:"Cheval de sport",
+    besoins:["Un fourrage de base qui nourrit (énergie et protéines)","Plus le foin est bon, moins il faut de granulés riches en amidon","Un foin sain, sans poussière, pour ses poumons"],
+    piege:"Un mauvais foin oblige à compenser avec beaucoup de céréales.", glos:["UFC"]},
+  poulain:{nom:"Tornade", titre:"Poulain de 8 mois, 260 kg, en pleine croissance", court:"Poulain",
+    besoins:["Des protéines pour grandir","Un bon équilibre calcium/phosphore pour construire ses os","Pas d'excès d'énergie : une croissance trop rapide abîme les articulations"],
+    piege:"Le plus riche n'est pas forcément le mieux : l'équilibre compte.", glos:["CaP"]},
+  vieux:{nom:"Papy", titre:"Cheval de 27 ans, 500 kg, aux dents usées", court:"Vieux cheval",
+    besoins:["Un foin tendre et feuillu, facile à mâcher","Très digestible : il tire moins bien profit de sa ration","Assez d'énergie pour garder son état"],
+    piege:"Un foin plein de tiges dures : il le trie, le laisse, et maigrit.", glos:["digestibilite","NDF"]}
+};
+const HORSE_ORDER = ["poney","jument","sport","poulain","vieux"];
+
+const EXPERTS = {
+  securite:{titre:"Sécurité", q:"Ce foin est-il sain ?", rows:["ms","cendres"],
+    lire:"Regardez d'abord la matière sèche (MS), puis les cendres.",
+    v:"MS au-dessus de 85 % et cendres sous 10 %", o:"Pas de cas orange : sain ou pas sain", r:"MS sous 85 % (il va chauffer et moisir) ou cendres au-dessus de 10 % (terre ramassée)",
+    gerant:"Un foin malsain se refuse, quel que soit son prix. Mais attention : sain ne veut pas dire nourrissant.",
+    plus:"Ajoutez ce que vous voyez et sentez : couleur, poussière, odeur, chaleur de la botte."},
+  energie:{titre:"Énergie", q:"Ce foin nourrit-il ?", rows:["ufc"],
+    lire:"Une seule ligne : les UFC par kg de matière sèche.",
+    v:"Plus de 0,6 UFC : riche", o:"Entre 0,5 et 0,6 UFC : moyen", r:"Moins de 0,5 UFC : pauvre",
+    gerant:"Moins le foin nourrit, plus il faut acheter de granulés pour compenser. Mais un foin très riche fait grossir les chevaux qui travaillent peu."},
+  proteines:{titre:"Protéines", q:"Ce foin construit-il ? (muscle, lait, croissance)", rows:["madc","mat"],
+    lire:"Lisez la MADC (ce que le cheval utilise vraiment), pas la MAT (ce que mesure le labo).",
+    v:"MADC au-dessus de 50 g/kg MS", o:"MADC entre 40 et 50", r:"MADC sous 40, ou « NC » (non calculable)",
+    gerant:"Les protéines coûtent cher à compléter. Un foin riche en MADC fait économiser du complément pour les juments, les jeunes et les chevaux de sport."},
+  fibres:{titre:"Fibres", q:"Ce foin se mange-t-il et se digère-t-il bien ?", rows:["cb","ndf"],
+    lire:"Deux lignes : la cellulose brute (CB) et le NDF. Si elles ne disent pas la même chose, retenez la plus mauvaise.",
+    v:"CB sous 30 % et NDF sous 50 %", o:"CB de 30 à 35 % ou NDF de 50 à 60 %", r:"CB au-dessus de 35 % ou NDF au-dessus de 60 %",
+    gerant:"Un foin trop fibreux reste dans le râtelier : c'est de l'argent qui part au fumier."},
+  risques:{titre:"Risques", q:"Ce foin est-il dangereux pour certains chevaux ?", rows:["sucres","ca","p","cap"],
+    lire:"Regardez les sucres, puis le rapport Ca/P (calcium divisé par phosphore).",
+    v:"Sucres sous 10 % et Ca/P entre 1,5 et 2,5", o:"Sucres de 10 à 15 %, ou Ca/P sous 1,5", r:"Sucres au-dessus de 15 %",
+    gerant:"Ces lignes ne concernent pas tous les chevaux : les sucres menacent les poneys et les chevaux sensibles à la fourbure, le Ca/P menace surtout les poulains."}
+};
+const EXPERT_ORDER = ["securite","energie","proteines","fibres","risques"];
+
+const DEFAULT_ASSIGN = {
+  margaux:{h:"poney", e:"securite"},
+  valentin:{h:"jument", e:"energie"},
+  cecile:{h:"sport", e:"fibres"},
+  sandrine:{h:"poulain", e:"proteines"},
+  laure:{h:"vieux", e:"risques"}
+};
+
+const ROWS = {
+  ms:{label:"Matière sèche (MS)", unit:"% du brut", g:"MS", dec:1},
+  cendres:{label:"Matières minérales (cendres)", unit:"% MS", g:"cendres", dec:1},
+  ufc:{label:"UFC", unit:"/kg MS", g:"UFC", dec:2},
+  mat:{label:"MAT", unit:"g/kg MS", g:"MAT", dec:0},
+  madc:{label:"MADC", unit:"g/kg MS", g:"MADC", dec:1},
+  cb:{label:"Cellulose brute (CB)", unit:"% MS", g:"CB", dec:1},
+  ndf:{label:"NDF", unit:"% MS", g:"NDF", dec:1},
+  adf:{label:"ADF", unit:"% MS", g:"ADF", dec:1},
+  dcs:{label:"DCS", unit:"%", g:"DCS", dec:1},
+  dmo:{label:"dMO", unit:"%", g:"DCS", dec:1},
+  sucres:{label:"Sucres", unit:"% MS", g:"sucres", dec:1},
+  ca:{label:"Calcium (Ca)", unit:"g/kg MS", g:"Ca", dec:2},
+  p:{label:"Phosphore (P)", unit:"g/kg MS", g:"P", dec:2},
+  cap:{label:"Rapport Ca/P", unit:"calculé", g:"CaP", dec:1}
+};
+const FOINS = {
+  A:{code:"LANO HA25-22497", surnom:"l'exception", d:{ms:91.1,cendres:7.1,mat:131,madc:72.3,cb:30.4,ndf:58.1,adf:29.5,dcs:65.4,dmo:62.1,ufc:0.64,sucres:12.2,ca:3.08,p:2.28}},
+  B:{code:"LANO HA25-22496", surnom:"le désastre", d:{ms:91.7,cendres:3.5,mat:22,madc:null,cb:39.7,ndf:63.1,adf:36.1,dcs:43.4,dmo:44.5,ufc:0.45,sucres:21.4,ca:2.21,p:1.13}},
+  C:{code:"LANO HA25-22495", surnom:"le foin du poney", d:{ms:89.9,cendres:6.4,mat:100,madc:51.1,cb:35.4,ndf:64.6,adf:35.1,dcs:54.2,dmo:54.8,ufc:0.56,sucres:6.4,ca:4.87,p:2.33}}
+};
+for (const f of Object.values(FOINS)) f.d.cap = f.d.ca / f.d.p;
+const FOIN_KEYS = ["A","B","C"];
+const ROW_ORDER = ["ms","cendres","ufc","madc","mat","cb","ndf","sucres","ca","p","cap"];
+const OTHER_ROWS = ["adf","dcs","dmo"];
+
+const EXPERT_KEY = {
+  securite:{A:"v",B:"v",C:"v"}, energie:{A:"v",B:"r",C:"o"}, proteines:{A:"v",B:"r",C:"v"},
+  fibres:{A:"o",B:"r",C:"r"}, risques:{A:"o",B:"r",C:"v"}
+};
+const MATRIX_KEY = {
+  poney:{A:["o","Sucres 12 % : limite"],B:["r","Sucres 21 % : fourbure"],C:["v","Sucres 6 % : idéal"]},
+  jument:{A:["v","MADC 72 : couvre ses besoins"],B:["r","Vide : MADC non calculable"],C:["o","À compléter en protéines"]},
+  sport:{A:["v","La meilleure base"],B:["r","Ne nourrit pas"],C:["o","Base + complément"]},
+  poulain:{A:["o","Ca/P 1,4 : à corriger"],B:["r","Ne nourrit pas"],C:["v","Ca/P 2,1 et MADC 51"]},
+  vieux:{A:["v","Le plus digestible"],B:["r","CB 40 : indigestible"],C:["r","NDF 65 : il le laissera"]}
+};
+
+const GLOSS = {
+  MS:["Matière sèche (MS)","Ce qui reste du foin quand on enlève toute l'eau. Un foin doit en contenir plus de 85 % : plus humide, il chauffe dans la botte, moisit et devient poussiéreux. Un enrubanné est volontairement plus humide (50 à 70 %)."],
+  kgMS:["« par kg de MS »","Toutes les valeurs de la fiche sont données par kilo de foin sans son eau. 1 kg de foin à 90 % de MS = 0,9 kg de MS. On compare ainsi des fourrages plus ou moins humides."],
+  cendres:["Cendres (matières minérales)","Ce qui reste si on brûle le foin. Au-dessus de 10 %, c'est souvent de la terre ou du sable ramassés avec le foin (fauche trop basse) : poussière, usure des dents, risque de coliques."],
+  MAT:["MAT : matières azotées totales","Toutes les protéines mesurées par le laboratoire, digestibles ou non. C'est un chiffre brut : il surestime ce que le cheval utilise vraiment."],
+  MADC:["MADC : matières azotées digestibles cheval","La part des protéines que le cheval digère et utilise réellement : muscle, lait, croissance. C'est la valeur à regarder pour les protéines. Au-dessus de 50 g/kg MS, c'est bon."],
+  NC:["NC : non calculable","Le laboratoire n'a pas pu calculer la valeur parce que le foin est trop pauvre. C'est un très mauvais signe."],
+  UFC:["UFC : unité fourragère cheval","La valeur énergétique, l'équivalent des « calories » du foin. 1 UFC = l'énergie d'1 kg d'orge. Un foin va d'environ 0,4 (pauvre) à 0,7 (riche) UFC par kg de MS."],
+  CB:["Cellulose brute (CB)","La partie la plus dure de la plante (surtout les tiges). Plus elle est élevée, moins le foin est digestible. Un foin coupé tard, plein de tiges, en contient beaucoup."],
+  NDF:["NDF : fibres totales","L'ensemble des fibres (les parois des cellules de la plante). Plus il y en a, plus le cheval met de temps à mâcher et moins il en mange. Au-dessus de 60 %, il mange moins."],
+  ADF:["ADF","La partie des fibres la moins digestible (cellulose et lignine). Plus elle est haute, moins le foin nourrit. On ne l'utilise pas dans cette séance."],
+  ADL:["ADL (lignine)","Le « bois » de la plante. Le cheval ne le digère pas du tout."],
+  DCS:["DCS et dMO : digestibilités","La part du foin (en %) que le cheval digère vraiment. Plus c'est haut, mieux c'est. Utile pour un vieux cheval qui digère moins bien. Pour information aujourd'hui."],
+  sucres:["Sucres","Les sucres simples du foin : une énergie rapide, dangereuse pour les chevaux sensibles à la fourbure (poneys, chevaux obèses, syndrome métabolique). Pour eux, on cherche un foin pauvre en sucres."],
+  Ca:["Calcium (Ca)","Minéral des os et des dents, indispensable aussi au fonctionnement des muscles."],
+  P:["Phosphore (P)","Minéral des os, qui sert aussi à produire l'énergie des cellules."],
+  CaP:["Rapport Ca/P","Calcium divisé par phosphore. Il faut toujours plus de calcium que de phosphore (rapport au-dessus de 1, idéalement 1,5 à 2). S'il est trop bas, les os se forment mal, surtout chez le poulain."],
+  CMV:["CMV : complément minéral et vitaminé","Un aliment donné en petite quantité qui apporte les minéraux et vitamines que le foin n'apporte pas."],
+  PV:["PV : poids vif","Le poids du cheval."],
+  fourbure:["Fourbure","Inflammation très douloureuse du pied, parfois mortelle. Souvent déclenchée par trop de sucres ou d'amidon chez un cheval sensible."],
+  SME:["Syndrome métabolique équin (SME)","Cheval, souvent un poney, qui grossit facilement et gère mal les sucres. Très exposé à la fourbure."],
+  enrubanne:["Enrubanné","Herbe fauchée, à moitié séchée, puis emballée dans du plastique. Plus humide qu'un foin (50 à 70 % de MS) et sans poussière, mais une balle ouverte doit être mangée en quelques jours."],
+  LANO:["LANO","Laboratoire d'analyses agricoles de Saint-Lô (Manche) qui a analysé ces foins. Une analyse coûte environ 50 €."],
+  luzerne:["Luzerne","Plante de la famille des légumineuses, riche en protéines et en calcium. En foin ou en granulés, elle complète un foin pauvre en protéines."],
+  tourteau:["Tourteau","Ce qui reste d'une graine (soja, colza…) après en avoir extrait l'huile. Très riche en protéines."],
+  digestibilite:["Digestibilité","La part d'un aliment que le cheval digère vraiment. Le reste ressort dans le crottin."],
+  ingestibilite:["Ingestibilité","La quantité qu'un cheval accepte de manger. Un foin dur et fibreux est peu ingestible."]
+};
+const SEUILS = {
+  MS:["Foin : plus de 85 % de MS","Enrubanné : plus de 50 % de MS","Botte qui a chauffé à 40-60 °C : foin gris et poussiéreux, perd 5 à 15 % de son énergie et 10 à 30 % de la digestibilité de ses protéines","Au-delà de 60 °C : foin marron à noir, jusqu'à 80 % de la digestibilité des protéines perdue"],
+  cendres:["Moins de 10 % de la MS","Au-dessus : suspicion de terre ou de sable"],
+  MAT:["Foin correct : 80 g/kg MS","Bon foin : plus de 100 g/kg MS","Sous 80 g/kg MS : foin pauvre en protéines, le cheval en mange moins"],
+  MADC:["Foin correct : 40 g/kg MS","Bon foin : plus de 50 g/kg MS","Rapport MADC/UFC idéal : 80 à 120"],
+  UFC:["Un foin varie en général de 0,4 à 0,6 UFC/kg MS","Faible : moins de 0,5","Rapport MADC/UFC idéal : 80 à 120"],
+  CB:["Foin excellent : moins de 30 % de la MS","Foin correct : 30 à 35 %","La ration entière doit contenir au moins 15 % de cellulose brute"],
+  NDF:["Foin excellent : moins de 40 % de la MS","Bon foin : moins de 50 %","Foin moyen : autour de 60 %","Au-dessus de 60 % : le cheval mange moins"],
+  ADF:["Foin excellent : moins de 30 % de la MS","Bon foin : 30 à 35 %","Foin moyen : 35 à 45 %","Au-dessus de 45 % : digestibilité fortement diminuée"],
+  sucres:["Repères utilisés dans cette séance : moins de 10 % sans risque, 10 à 15 % limite, plus de 15 % dangereux pour un cheval sensible à la fourbure"],
+  CaP:["Toujours au-dessus de 1","Idéal : 1,5 à 2","Trop bas : risque pour les os, surtout chez le poulain"],
+  LANO:["Une analyse : environ 50 €","Prélever une dizaine de bottes, jusqu'au cœur","Éviter d'envoyer les échantillons le vendredi ou le samedi"],
+  enrubanne:["Plus de 50 % de MS","Une balle ouverte se consomme en 5 jours maximum"]
+};
+function seuilsHtml(g){ const x=SEUILS[g]; return x?`<div class="banner"><strong>Repères chiffrés</strong><ul class="clean">${x.map(l=>`<li>${esc(l)}</li>`).join("")}</ul></div>`:""; }
+const GLOSS_ORDER = ["MS","kgMS","cendres","UFC","MAT","MADC","NC","CB","NDF","ADF","ADL","DCS","sucres","Ca","P","CaP","digestibilite","ingestibilite","CMV","PV","fourbure","SME","enrubanne","luzerne","tourteau","LANO"];
+
+/* ================= DONNÉES PROPRES À LA RÉVISION ================= */
+const PARTS={"1":"Prélever et faire analyser","2":"Lire une analyse","3":"Un foin pour quel cheval ?","4":"Acheter et compléter"};
+const WLABEL={w1:"Lexique",w2:"Lexique",w3:"Les chevaux",w4:"Les chevaux"};
+const ROW_EXPERT={ms:"securite",cendres:"securite",ufc:"energie",madc:"proteines",mat:"proteines",cb:"fibres",ndf:"fibres",sucres:"risques",ca:"risques",p:"risques",cap:"risques"};
+
+const LEX_IDS=["MS","cendres","UFC","MAT","MADC","NC","CB","NDF","ADF","sucres","CaP","CMV","enrubanne","LANO","kgMS"];
+const DECKS={
+ lex:{label:"Lexique",items:LEX_IDS.map((g,i)=>({id:"lx-"+g,l:["ADF","kgMS","LANO"].includes(g)?"A":"I",w:i%2?"w2":"w1",nm:GLOSS[g][0],tag:"Ligne de la fiche d'analyse",clue:GLOSS[g][1].split(". ")[0]+".",site:GLOSS[g][1],stim:"",fx:(SEUILS[g]||["Pas de seuil chiffré à retenir"]),ger:""}))},
+ che:{label:"Chevaux",items:HORSE_ORDER.map((h,i)=>({id:"ch-"+h,w:i%2?"w4":"w3",nm:HORSES[h].nom,tag:HORSES[h].court,clue:HORSES[h].titre,site:HORSES[h].titre,stim:"",fx:HORSES[h].besoins,ger:"Le piège : "+HORSES[h].piege}))},
+ exp:{label:"Questions d'expert",items:EXPERT_ORDER.map((e,i)=>({id:"ex-"+e,w:i%2?"w2":"w1",nm:EXPERTS[e].q,tag:"Expert "+EXPERTS[e].titre,clue:"Lignes : "+EXPERTS[e].rows.map(r=>ROWS[r].label).join(", "),site:EXPERTS[e].lire,stim:"",fx:["Vert : "+EXPERTS[e].v,"Orange : "+EXPERTS[e].o,"Rouge : "+EXPERTS[e].r],ger:EXPERTS[e].gerant}))}
+};
+
+const QUIZ=[
+ {c:"1",l:"I",o:"1I1",q:"Pourquoi faire analyser chaque lot de foin, même s'il vient de la même prairie ?",ok:"Trois bottes d'une même prairie, coupées le même jour, peuvent avoir des valeurs très différentes",bad:["Parce que la loi l'impose","Parce que l'analyse améliore le foin","Ce n'est pas utile si le foin est vert et sent bon"],fb:"Dans le TD, les foins A, B et C venaient de la même prairie, le même jour : MADC de 72, non calculable et 51."},
+ {c:"1",l:"I",o:"1I1",q:"Combien coûte environ une analyse de foin ?",ok:"Environ 50 €",bad:["Environ 5 €","Environ 500 €","C'est gratuit"],fb:"Peu, face au prix d'un lot de foin ou d'une fourbure."},
+ {c:"1",l:"I",o:"1I2",q:"Comment prélever un échantillon de foin représentatif ?",ok:"Prélever une dizaine de bottes au hasard, jusqu'au cœur",bad:["Prendre une poignée sur la botte du dessus","Prendre uniquement les feuilles","Prélever une seule botte, la plus belle"],fb:"Méthode de référence : environ 10 bottes, sur toute la profondeur. Éviter d'envoyer l'échantillon le vendredi ou le samedi."},
+ {c:"1",l:"I",o:"1I3",q:"L'œil et le nez suffisent-ils pour juger un foin ?",ok:"Non : ils écartent un foin malsain, mais ne disent rien de sa valeur nutritive",bad:["Oui, la couleur suffit","Oui, l'odeur suffit","Oui, si le foin est vert"],fb:"Le foin B semblait sain, mais il ne nourrissait presque pas."},
+ {c:"2",l:"I",o:"2I1",q:"Que veut dire « par kg de MS » sur une analyse ?",ok:"Par kilo de foin sans son eau",bad:["Par kilo de foin tel qu'il est livré","Par kilo de matière sucrée","Par kilo de poids vif du cheval"],fb:"1 kg de foin à 90 % de MS = 0,9 kg de MS. On compare ainsi des fourrages plus ou moins humides."},
+ {c:"2",l:"I",o:"2I1",q:"Pour juger les protéines d'un foin, quelle ligne regarder ?",ok:"La MADC",bad:["La MAT","Les cendres","La cellulose brute"],fb:"La MAT mesure tout ce que le labo trouve ; la MADC, ce que le cheval utilise vraiment."},
+ {c:"2",l:"I",o:"2I1",q:"Que signifie « NC » à la ligne MADC ?",ok:"Non calculable : le foin est trop pauvre en protéines",bad:["Non communiqué par le laboratoire","Normal et conforme","Nouvelle coupe"],fb:"C'était le cas du foin B (MAT 22 g/kg MS)."},
+ {c:"2",l:"I",o:"2I2",q:"Un foin affiche 82 % de MS. Que faites-vous ?",ok:"Je le refuse : trop humide, il va chauffer et moisir",bad:["Je le garde, c'est très bien","Je le donne aux poneys uniquement","Peu importe, seule la MADC compte"],fb:"Un foin doit dépasser 85 % de MS. Pour un enrubanné, le seuil est de 50 % : 82 % serait alors très sec."},
+ {c:"2",l:"I",o:"2I2",t:"multi",q:"Quelles valeurs signalent un problème de sécurité ?",oks:["MS de 80 % pour un foin","Cendres à 13 % de la MS"],bad:["MS de 90 % pour un foin","Cendres à 6 % de la MS","MS de 60 % pour un enrubanné"],fb:"Foin : MS > 85 % ; enrubanné : MS > 50 % ; cendres < 10 % (au-delà, de la terre)."},
+ {c:"2",l:"I",o:"2I2",q:"Un foin a 0,64 UFC/kg MS. Il est plutôt :",ok:"Riche en énergie",bad:["Pauvre en énergie","Moyen","Dangereux"],fb:"Repères : > 0,6 riche ; 0,5 à 0,6 moyen ; < 0,5 pauvre."},
+ {c:"2",l:"I",o:"2I2",q:"Un foin a un NDF de 65 % de la MS. Qu'en déduire ?",ok:"Il est très fibreux : le cheval en mangera moins",bad:["Il est très riche en protéines","Il est très sucré","Il est trop humide"],fb:"Au-delà de 60 %, l'ingestion diminue. C'était le cas du foin C (64,6 %)."},
+ {c:"2",l:"A",o:"2A1",q:"Que mesure l'ADF ?",ok:"La partie la moins digestible des fibres (cellulose et lignine)",bad:["Les sucres","Les protéines digestibles","Les minéraux"],fb:"Plus l'ADF est élevé, moins le foin est digestible. Il n'est pas utilisé dans la séance."},
+ {c:"3",l:"I",o:"3I1",q:"Pour Caramel, poney à risque de fourbure, quel foin choisir ?",ok:"Le foin C, le plus pauvre en sucres (6,4 %)",bad:["Le foin A, « l'exception »","Le foin B","N'importe lequel"],fb:"Pour lui, c'est le foin le plus « pauvre » qui est le meilleur. Le foin A (12 % de sucres) est limite, le B (21 %) dangereux."},
+ {c:"3",l:"I",o:"3I1",q:"Pourquoi le foin « d'exception » A n'est-il pas idéal pour Tornade, le poulain ?",ok:"Son rapport Ca/P (1,4) est trop bas pour bien construire les os",bad:["Il est trop pauvre en protéines","Il est trop humide","Il contient trop de cendres"],fb:"La richesse ne bat pas l'équilibre : pour le poulain, le foin C (Ca/P 2,1) est meilleur."},
+ {c:"3",l:"I",o:"3I1",q:"Pour Papy, vieux cheval aux dents usées, quel foin choisir ?",ok:"Le foin A, le plus digestible",bad:["Le foin C, très fibreux","Le foin B","Peu importe, il mange de tout"],fb:"Le foin C (NDF 65 %, CB 35 %) sera trié et laissé : il maigrirait."},
+ {c:"3",l:"I",o:"3I2",q:"Le foin B est sain, sec et sans odeur. Pourquoi le refuser ?",ok:"Il ne nourrit pas (UFC 0,45, MADC non calculable), il est indigestible et très sucré",bad:["Il est moisi","Il contient trop de protéines","Il est trop cher"],fb:"Sain ne veut pas dire bon : seule l'analyse le révélait."},
+ {c:"3",l:"I",o:"3I2",tf:true,q:"Vrai ou faux ? Un foin riche en énergie et en protéines convient à tous les chevaux.",ok:"Faux",bad:["Vrai"],fb:"Faux : un foin trop riche fait grossir les chevaux peu actifs et peut déclencher une fourbure chez un poney sensible."},
+ {c:"3",l:"I",o:"3I2",tf:true,q:"Vrai ou faux ? Un même foin peut être idéal pour un cheval et dangereux pour un autre.",ok:"Vrai",bad:["Faux"],fb:"C'est le message central : la valeur d'un foin est relative au cheval."},
+ {c:"4",l:"I",o:"4I1",q:"La jument suitée reçoit le foin C (MADC 51). Que faut-il lui ajouter en priorité ?",ok:"Un complément riche en protéines (luzerne, tourteau), pas des céréales",bad:["Des céréales","Rien du tout","Du sel uniquement"],fb:"Les céréales apportent surtout de l'amidon ; c'est l'azote qui manque."},
+ {c:"4",l:"I",o:"4I1",q:"Pourquoi faut-il un CMV même avec un très bon foin ?",ok:"L'analyse ne mesure ni sélénium, ni iode, ni vitamines, et les vitamines diminuent au stockage",bad:["Pour améliorer le goût du foin","Parce que le foin ne contient aucun minéral","Ce n'est pas nécessaire avec un bon foin"],fb:"Un verdict vert ne veut pas dire que tout est couvert."},
+ {c:"4",l:"I",o:"4I2",t:"multi",q:"Le fournisseur livre un lot sans analyse. Que faites-vous ?",oks:["Faire analyser chaque lot avant de payer","Prévoir une analyse par lot dans le contrat","Prélever une dizaine de bottes jusqu'au cœur"],bad:["Payer et donner le foin tout de suite","Juger uniquement à la couleur"],fb:"Le prix peut aussi être fixé selon la qualité, avec un droit de retour."},
+ {c:"4",l:"A",o:"4A1",q:"Combien de kilos de MS de fourrage au minimum pour un cheval de 500 kg ?",ok:"7,5 kg par jour",bad:["2,5 kg par jour","15 kg par jour","1,5 kg par jour"],fb:"1,5 kg de MS pour 100 kg de poids vif : 5 × 1,5 = 7,5 kg."}
+];
+
+const SORTS=[
+ {id:"ligne",l:"I",short:"Lignes",title:"Quelle ligne répond à quelle question ?",bins:["Est-il sain ?","Nourrit-il ?","Construit-il ?","Se mange-t-il ?","Est-il dangereux ?"],
+  items:[["Matière sèche",0],["Cendres",0],["UFC",1],["MADC",2],["MAT",2],["Cellulose brute",3],["NDF",3],["Sucres",4],["Rapport Ca/P",4]]},
+ {id:"feux",l:"I",short:"Feux",title:"Bon, moyen ou problème ?",bins:["Bon","Moyen","Problème"],
+  items:[["UFC 0,64",0],["MADC 72",0],["Sucres 6 %",0],["UFC 0,56",1],["MADC 45",1],["CB 33 %",1],["Sucres 12 %",1],["UFC 0,45",2],["MADC NC",2],["NDF 65 %",2],["Sucres 21 %",2],["Foin à 82 % de MS",2]]},
+ {id:"cheval",l:"I",short:"Chevaux",title:"Quel foin pour quel cheval ?",bins:["Foin A","Foin C","Aucun : à refuser"],
+  items:[["Bella, jument suitée",0],["Ulysse, cheval de sport",0],["Papy, vieux cheval",0],["Caramel, poney à risque de fourbure",1],["Tornade, poulain",1],["Foin B",2]]}
+];
+
+const ORDERS=[
+ {id:"achat",l:"I",short:"Achat",title:"Acheter un lot de foin",steps:["Repérer les différents lots (parcelle, date de coupe)","Prélever une dizaine de bottes au hasard, jusqu'au cœur","Envoyer les échantillons au laboratoire (pas le vendredi ni le samedi)","Lire l'analyse : le foin est-il sain ?","Juger sa valeur : énergie, protéines, fibres, risques","Attribuer chaque lot aux chevaux auxquels il convient","Prévoir les compléments (azote, CMV) ou refuser le lot"]},
+ {id:"lire",l:"I",short:"Lecture",title:"Lire une analyse dans le bon ordre",steps:["Est-il sain ? (MS, cendres)","Nourrit-il ? (UFC)","Construit-il ? (MADC)","Se mange-t-il ? (CB, NDF)","Est-il dangereux pour certains chevaux ? (sucres, Ca/P)","Pour ce cheval : je garde, je complète ou je refuse"]}
+];
+
+const OBJ=[
+ {p:"Objectif général",items:[["G","I","Lire une analyse de foin et décider, pour chaque cheval, de garder, compléter ou refuser un lot.",[["ana","","Analyses"],["sim","analyseur","Simu Analyseur"]]]]},
+ {p:"1. Prélever et faire analyser",items:[
+  ["1I1","I","Expliquer pourquoi on fait analyser chaque lot.",[["order","achat","Ordre achat"]]],
+  ["1I2","I","Décrire comment prélever un échantillon représentatif.",[["order","achat","Ordre achat"]]],
+  ["1I3","I","Distinguer ce que l'œil et le nez apprennent de ce que seule l'analyse révèle.",[]]]},
+ {p:"2. Lire une analyse",items:[
+  ["2I1","I","Expliquer en mots simples les lignes utiles de la fiche (MS, cendres, UFC, MADC, CB, NDF, sucres, Ca/P).",[["cards","lex","Cartes Lexique"],["sort","ligne","Tri lignes"]]],
+  ["2I2","I","Classer une valeur en bon, moyen ou problème.",[["sort","feux","Tri feux"],["cards","exp","Cartes Questions"]]],
+  ["2A1","A","Connaître les autres lignes de la fiche (ADF, digestibilités).",[["cards","lex","Cartes Lexique"]]]]},
+ {p:"3. Un foin pour quel cheval ?",items:[
+  ["3I1","I","Choisir le foin adapté à chacun des cinq chevaux et justifier.",[["sim","matrice","Simu Matrice"],["sort","cheval","Tri chevaux"],["cards","che","Cartes Chevaux"]]],
+  ["3I2","I","Expliquer qu'un foin n'est ni bon ni mauvais en soi.",[["sim","analyseur","Simu Analyseur"]]]]},
+ {p:"4. Acheter et compléter",items:[
+  ["4I1","I","Proposer les compléments adaptés (azote, CMV) et refuser un lot inadapté.",[["order","lire","Ordre lecture"]]],
+  ["4I2","I","Organiser l'achat d'un lot : analyse, contrat, prix selon la qualité.",[["order","achat","Ordre achat"]]],
+  ["4A1","A","Calculer le minimum de fourrage d'un cheval.",[]]]}
+];
+
+/* ================= ANALYSES ================= */
+let anaF=store.get("anaF","A"), anaE=store.get("anaE","all");
+function openGloss(g){const G=GLOSS[g];if(!G)return;$("#m-title").textContent=G[0];$("#m-body").innerHTML=`<p style="margin:0">${esc(G[1])}</p>${seuilsHtml(g)}`;$("#modal").hidden=false;$("#m-close").focus();}
+$("#m-close").addEventListener("click",()=>$("#modal").hidden=true);
+$("#modal").addEventListener("click",e=>{if(e.target.id==="modal")$("#modal").hidden=true;});
+document.addEventListener("keydown",e=>{if(e.key==="Escape")$("#modal").hidden=true;});
+function renderAna(){
+  const F=FOINS[anaF], hl=anaE==="all"?[]:EXPERTS[anaE].rows;
+  const tr=r=>{const R=ROWS[r],v=F.d[r],val=(r==="madc"&&v==null)?"NC":fr(v,R.dec);
+    return `<tr class="${hl.includes(r)?"hlrow":""}${OTHER_ROWS.includes(r)?" other":""}"><td><button type="button" class="term" data-g="${R.g}">${esc(R.label)}</button></td><td class="val">${val}</td><td class="unit">${esc(R.unit)}</td></tr>`;};
+  $("#ana-box").innerHTML=`<div class="panel"><div class="headrow"><h2 class="ptitle">Foin ${anaF}</h2><span class="tagc">${esc(F.code)}</span></div>
+    <p class="muted" style="margin:0">Trois bottes de la même prairie, coupées le même jour (ÉLEVEUR 1). Touchez un nom de ligne pour son explication et ses repères chiffrés.</p>
+    <div style="overflow-x:auto"><table class="fiche"><thead><tr><th>Ligne de la fiche</th><th style="text-align:right">Valeur</th><th>Unité</th></tr></thead><tbody>
+    ${ROW_ORDER.map(tr).join("")}<tr class="grp"><td colspan="3">Autres lignes, pour information</td></tr>${OTHER_ROWS.map(tr).join("")}</tbody></table></div>
+    <p class="muted" style="margin:0">Valeurs exprimées par kg de matière sèche (sauf la MS, en % du brut).</p></div>
+    ${anaE!=="all"?`<div class="panel"><div class="headrow"><h2 class="ptitle">${esc(EXPERTS[anaE].q)}</h2>${chip(expertLight(anaE,anaVals(F)),"expert")}</div><p style="margin:0">${esc(EXPERTS[anaE].lire)}</p><div class="manager">${esc(EXPERTS[anaE].gerant)}</div></div>`:""}`;
+  $("#ana-box").querySelectorAll(".term").forEach(b=>b.addEventListener("click",()=>openGloss(b.dataset.g)));
+}
+segBuild($("#ana-f"),[["A","Foin A"],["B","Foin B"],["C","Foin C"]],anaF,v=>{anaF=v;store.set("anaF",v);renderAna();});
+segBuild($("#ana-e"),[["all","Toutes"]].concat(EXPERT_ORDER.map(e=>[e,EXPERTS[e].titre])),anaE,v=>{anaE=v;store.set("anaE",v);renderAna();});
+
+/* ================= RÈGLES DE DÉCISION (mêmes repères que la séance) ================= */
+const LBL={expert:{v:["✓","Bon"],o:["!","Moyen"],r:["✕","Problème"]},verdict:{v:["✓","Je garde"],o:["!","Je complète"],r:["✕","Je refuse"]}};
+function chip(c,kind){const [ic,lb]=LBL[kind][c];return `<span class="chipc ${c}">${ic} ${lb}</span>`;}
+function anaVals(F){const d=F.d;return {type:"foin",ms:d.ms,cendres:d.cendres,ufc:d.ufc,madc:d.madc==null?0:d.madc,cb:d.cb,ndf:d.ndf,sucres:d.sucres,cap:d.cap};}
+const worst=(...c)=>c.includes("r")?"r":c.includes("o")?"o":"v";
+function expertLight(e,x){
+  if(e==="securite") return (x.ms>=(x.type==="enr"?50:85)&&x.cendres<=10)?"v":"r";
+  if(e==="energie") return x.ufc>0.6?"v":x.ufc>=0.5?"o":"r";
+  if(e==="proteines") return x.madc>50?"v":x.madc>=40?"o":"r";
+  if(e==="fibres") return worst(x.cb<30?"v":x.cb<=35?"o":"r", x.ndf<50?"v":x.ndf<=60?"o":"r");
+  if(e==="risques") return x.sucres>15?"r":(x.sucres>=10||x.cap<1.5)?"o":"v";
+}
+function horseVerdict(h,x){
+  if(expertLight("securite",x)==="r") return ["r","Foin malsain : à refuser pour tous"];
+  const nc=x.madc<=0?"non calculable":fr(x.madc,0);
+  if(h==="poney"){ if(x.sucres>15) return ["r",`Sucres ${fr(x.sucres,1)} % : risque de fourbure`]; if(x.sucres>=10) return ["o",`Sucres ${fr(x.sucres,1)} % : limite`]; if(x.ufc>0.6) return ["o",`UFC ${fr(x.ufc,2)} : trop riche, il va grossir`]; return ["v",`Sucres ${fr(x.sucres,1)} % : idéal`]; }
+  if(h==="jument"||h==="sport"){ if(x.madc<40||x.ufc<0.5) return ["r",`Ne nourrit pas assez (MADC ${nc}, UFC ${fr(x.ufc,2)})`]; if(x.madc>50&&x.ufc>0.6) return ["v",`MADC ${nc}, UFC ${fr(x.ufc,2)} : couvre l'essentiel`]; return ["o","Base correcte, à compléter (azote, énergie)"]; }
+  if(h==="poulain"){ if(x.madc<40) return ["r",`MADC ${nc} : trop pauvre pour grandir`]; if(x.cap<1.5) return ["o",`Ca/P ${fr(x.cap,1)} : à corriger pour les os`]; if(x.madc>50) return ["v",`MADC ${nc} et Ca/P ${fr(x.cap,1)} : équilibré`]; return ["o","À compléter en protéines"]; }
+  if(h==="vieux"){ if(x.cb>35||x.ndf>60) return ["r",`Trop fibreux (CB ${fr(x.cb,1)} %, NDF ${fr(x.ndf,1)} %) : il le laissera`]; if(x.ufc<0.5) return ["o","Digestible mais peu nourrissant"]; if(x.cb<=32) return ["v","Tendre et digestible"]; return ["o","Assez fibreux : à surveiller"]; }
+}
+
+/* ================= SIMULATIONS ================= */
+let simId=store.get("sim","analyseur");
+const PRESETS={A:anaVals(FOINS.A),B:anaVals(FOINS.B),C:anaVals(FOINS.C),humide:Object.assign(anaVals(FOINS.A),{ms:80})};
+let AN=store.get("an",null)||Object.assign({},PRESETS.A);
+const SL=[["ms","Matière sèche (MS)","%",40,95,0.5,1],["cendres","Cendres","% MS",2,15,0.1,1],["ufc","UFC","/kg MS",0.35,0.8,0.01,2],["madc","MADC (0 = NC)","g/kg MS",0,90,1,0],["cb","Cellulose brute","% MS",24,42,0.1,1],["ndf","NDF","% MS",40,70,0.1,1],["sucres","Sucres","% MS",2,25,0.1,1],["cap","Rapport Ca/P","",0.8,3,0.05,1]];
+function simAnalyseur(){
+  return `<div class="panel sim"><div class="headrow"><h2 class="ptitle">L'analyseur de foin</h2>${lvChip("I")}</div>
+    <p class="muted" style="margin:0">Partez d'un foin du TD ou réglez vous-même les valeurs : les cinq experts donnent leur avis et chaque cheval reçoit un verdict.</p>
+    <div class="row"><span class="lbl">Partir de</span><div class="seg" role="group" aria-label="Foin de départ"><button type="button" data-pre="A">Foin A</button><button type="button" data-pre="B">Foin B</button><button type="button" data-pre="C">Foin C</button><button type="button" data-pre="humide">Foin A mal séché</button></div></div>
+    <div class="row"><span class="lbl">Type</span><div class="seg" role="group" aria-label="Type de fourrage"><button type="button" data-type="foin" aria-pressed="${AN.type!=="enr"}">Foin</button><button type="button" data-type="enr" aria-pressed="${AN.type==="enr"}">Enrubanné</button></div></div>
+    <div class="sliders">${SL.map(([k,lab,u,mn,mx,st,dec])=>`<label for="an-${k}">${esc(lab)} : <span class="num">${k==="madc"&&AN[k]<=0?"NC":fr(AN[k],dec)}</span> ${esc(u)}</label><input type="range" id="an-${k}" min="${mn}" max="${mx}" step="${st}" value="${AN[k]}" data-an="${k}">`).join("")}</div>
+    <div class="lbl">Les cinq experts</div>
+    <div class="grid5">${EXPERT_ORDER.map(e=>`<div class="mini"><div class="q">${esc(EXPERTS[e].q)}</div>${chip(expertLight(e,AN),"expert")}</div>`).join("")}</div>
+    <div class="lbl">Le verdict pour chaque cheval</div>
+    <div class="grid5">${HORSE_ORDER.map(h=>{const [c,why]=horseVerdict(h,AN);return `<div class="mini"><div class="q">${esc(HORSES[h].nom)} · ${esc(HORSES[h].court)}</div>${chip(c,"verdict")}<div class="muted">${esc(why)}</div></div>`;}).join("")}</div>
+    <p class="muted" style="margin:0">Règles simplifiées, reprises des repères de la séance. Pour un vrai lot, ajoutez toujours l'examen visuel (couleur, odeur, poussière, chaleur).</p></div>`;
+}
+let MX=store.get("mx",{});
+function simMatrice(){
+  const shown=!!MX.__check;
+  return `<div class="panel sim"><div class="headrow"><h2 class="ptitle">La matrice : 5 chevaux, 3 foins</h2>${lvChip("I")}</div>
+    <p class="muted" style="margin:0">Touchez chaque case pour choisir votre verdict (je garde, je complète, je refuse), puis vérifiez. Les analyses sont dans l'onglet « Analyses ».</p>
+    <div style="overflow-x:auto"><table class="mx"><thead><tr><th>Cheval</th>${FOIN_KEYS.map(f=>`<th>Foin ${f}</th>`).join("")}</tr></thead><tbody>
+    ${HORSE_ORDER.map(h=>`<tr><td><strong>${esc(HORSES[h].nom)}</strong><div class="muted">${esc(HORSES[h].court)}</div></td>${FOIN_KEYS.map(f=>{const k=h+f,c=MX[k];const good=MATRIX_KEY[h][f][0];
+      return `<td><button type="button" class="cell ${c||""} ${shown?(c===good?"okc":"koc"):""}" data-cell="${k}">${c?chip(c,"verdict"):"<span class='muted'>choisir</span>"}</button>${shown?`<div class="exp">${chip(good,"verdict")}<br>${esc(MATRIX_KEY[h][f][1])}</div>`:""}</td>`;}).join("")}</tr>`).join("")}
+    </tbody></table></div>
+    <div class="row"><button type="button" class="btn primary" data-mx="check">Vérifier</button><button type="button" class="btn" data-mx="reset">Recommencer</button></div>
+    ${shown?(()=>{const n=HORSE_ORDER.reduce((s,h)=>s+FOIN_KEYS.filter(f=>MX[h+f]===MATRIX_KEY[h][f][0]).length,0);return `<div class="fb ${n===15?"ok":"bad"}"><strong>${n} / 15 cases justes</strong>Les trois moments clés : pour le poney, le foin le plus « pauvre » est le meilleur ; pour le poulain, l'équilibre Ca/P bat la richesse ; le foin B, sain en apparence, est à refuser pour tous.</div>`;})():""}</div>`;
+}
+segBuild($("#sim-seg"),[["analyseur","Analyseur"],["matrice","Matrice"]],simId,v=>{simId=v;store.set("sim",v);renderSim();});
+function renderSim(focusId){$("#sim-box").innerHTML=simId==="matrice"?simMatrice():simAnalyseur();if(focusId){const el=document.getElementById(focusId);if(el)el.focus();}}
+$("#sim-box").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;const d=b.dataset;
+  if(d.pre){AN=Object.assign({},PRESETS[d.pre]);store.set("an",AN);renderSim();}
+  else if(d.type){AN.type=d.type;store.set("an",AN);renderSim();}
+  else if(d.cell){const order=[undefined,"v","o","r"];MX[d.cell]=order[(order.indexOf(MX[d.cell])+1)%4];delete MX.__check;store.set("mx",MX);renderSim();}
+  else if(d.mx==="check"){MX.__check=true;store.set("mx",MX);renderSim();}
+  else if(d.mx==="reset"){MX={};store.set("mx",MX);renderSim();}
+});
+$("#sim-box").addEventListener("input",e=>{const el=e.target;if(el.dataset.an){AN[el.dataset.an]=+el.value;store.set("an",AN);renderSim(el.id);}});
+
+/* ================= CARTES ================= */
+let cLvl=store.get("clvl","I"), deckId=store.get("deck","lex"), front=store.get("front","name"), known=store.get("known",{}), deck=[], pos=0, revOnly=false;
+const deckItems=()=>DECKS[deckId].items.filter(a=>cLvl==="all"||(a.l||"I")==="I");
+function buildDeck(){const all=deckItems();deck=revOnly?all.filter(a=>known[a.id]===false):all;if(pos>=deck.length)pos=0;$("#empty-rev").hidden=!(revOnly&&deck.length===0);renderCard();}
+function renderCard(){
+  const flip=$("#flip");flip.classList.remove("on");const has=deck.length>0;flip.hidden=!has;
+  ["#j-no","#j-yes","#n-prev","#n-next"].forEach(s=>$(s).disabled=!has);
+  const all=deckItems(),nk=all.filter(a=>known[a.id]===true).length;
+  $("#c-pos").textContent=has?`${pos+1} / ${deck.length}`:"0 / 0";$("#c-known").textContent=`${nk} sues sur ${all.length}`;$("#c-bar").style.width=(all.length?nk/all.length*100:0)+"%";
+  if(!has)return;const a=deck[pos];
+  const f=front==="name"?`<div class="headrow"><div class="stage">${WLABEL[a.w]}</div>${lvChip(a.l||"I")}</div><h2 class="nm">${esc(a.nm)}</h2><div class="tagc">${esc(a.tag)}</div><div class="plate">Que veut dire ce mot ? Que retenir ?</div><p class="hint">Touchez pour vérifier</p>`
+    :`<div class="stage">${WLABEL[a.w]} · qui suis-je ?</div><div class="plate" style="margin-top:8px">${esc(a.clue)}</div><p class="hint">Touchez pour vérifier</p>`;
+  const back=`<div class="stage">${WLABEL[a.w]}</div><h2 class="nm" style="font-size:28px">${esc(a.nm)}</h2>
+    <div class="blk"><h3>En clair</h3><p>${esc(a.site)}</p></div>${a.stim?`<div class="blk"><h3>Quand, comment ?</h3><p>${esc(a.stim)}</p></div>`:""}
+    <div class="blk"><h3>Repères</h3><ul>${a.fx.map(x=>`<li>${esc(x)}</li>`).join("")}</ul></div>${a.ger?`<div class="blk"><h3>Pour un gérant</h3><p>${esc(a.ger)}</p></div>`:""}`;
+  flip.innerHTML=`<div class="side ${a.w}"><div class="face">${f}</div></div><div class="side back ${a.w}"><div class="face">${back}</div></div>`;
+  flip.setAttribute("aria-label",`Carte ${pos+1} sur ${deck.length} : retourner`);
+}
+const turn=()=>$("#flip").classList.toggle("on");
+function go(d){if(!deck.length)return;pos=(pos+d+deck.length)%deck.length;renderCard();}
+function judge(v){if(!deck.length)return;known[deck[pos].id]=v;store.set("known",known);if(revOnly&&v)buildDeck();else go(1);}
+$("#flip").addEventListener("click",turn);
+$("#flip").addEventListener("keydown",e=>{if(e.key===" "||e.key==="Enter"){e.preventDefault();turn();}});
+document.addEventListener("keydown",e=>{if($("#p-cards").hidden)return;if(e.target.closest&&e.target.closest("button,input,select"))return;if(e.key==="ArrowRight")go(1);if(e.key==="ArrowLeft")go(-1);});
+$("#n-next").addEventListener("click",()=>go(1));$("#n-prev").addEventListener("click",()=>go(-1));
+$("#j-yes").addEventListener("click",()=>judge(true));$("#j-no").addEventListener("click",()=>judge(false));
+let sx=null;$("#flip").addEventListener("touchstart",e=>{sx=e.touches[0].clientX},{passive:true});
+$("#flip").addEventListener("touchend",e=>{if(sx===null)return;const dx=e.changedTouches[0].clientX-sx;if(Math.abs(dx)>60)go(dx<0?1:-1);sx=null;});
+segBuild($("#c-lvl"),[["I","Indispensables"],["all","Tout"]],cLvl,v=>{cLvl=v;store.set("clvl",v);pos=0;buildDeck();});
+segBuild($("#deck-seg"),[["lex","Lexique"],["che","Chevaux"],["exp","Questions"],["rev","À revoir"]],deckId,v=>{if(v==="rev")revOnly=true;else{revOnly=false;deckId=v;store.set("deck",v);}pos=0;buildDeck();});
+segBuild($("#c-front"),[["name","Nom"],["clue","Indice"]],front,v=>{front=v;store.set("front",v);renderCard();});
+buildDeck();
+
+/* ================= QUIZ ================= */
+let qscope="all",qlvl="I",Q=[],qi=0,score=0,misses=[],qkey="all-I";
+segBuild($("#q-lvl"),[["I","Indispensables"],["all","Tout"],["A","Bonus"]],qlvl,v=>qlvl=v);
+segBuild($("#q-scope"),[["all","Tout"],["1","Prélever"],["2","Lire"],["3","Chevaux"],["4","Acheter"]],qscope,v=>qscope=v);
+function startQuiz(custom){
+  const pool=custom||QUIZ.filter(q=>(qscope==="all"||q.c===qscope)&&(qlvl==="all"||q.l===qlvl));
+  if(!pool.length)return;
+  qkey=custom?"":qscope+"-"+qlvl;Q=shuffle(pool).slice(0,Math.min(10,pool.length));qi=0;score=0;misses=[];
+  $("#q-start").hidden=true;$("#q-end").hidden=true;$("#q-run").hidden=false;showQ();
+}
+function showQ(){
+  const q=Q[qi];$("#q-num").textContent=`Question ${qi+1} / ${Q.length}`;$("#q-sc").textContent=`Score : ${score}`;$("#q-bar").style.width=(qi/Q.length*100)+"%";
+  $("#q-cat").textContent=PARTS[q.c];$("#q-lv").innerHTML=lvChip(q.l);$("#q-text").textContent=q.q;
+  const multi=q.t==="multi";$("#q-multi").hidden=!multi;$("#q-valid").hidden=!multi;
+  const opts=q.tf?["Vrai","Faux"]:shuffle(multi?q.oks.concat(q.bad):[q.ok].concat(q.bad));
+  const box=$("#q-opts");box.innerHTML="";
+  opts.forEach((o,i)=>{const b=document.createElement("button");b.type="button";b.className="opt";b.dataset.v=o;b.innerHTML=`<b>${"ABCDE"[i]}</b><span>${esc(o)}</span>`;
+    if(multi){b.setAttribute("aria-pressed","false");b.addEventListener("click",()=>b.setAttribute("aria-pressed",String(b.getAttribute("aria-pressed")!=="true")));}
+    else b.addEventListener("click",()=>answer([o]));box.appendChild(b);});
+  $("#q-fb").innerHTML="";$("#q-next").hidden=true;
+}
+function answer(chosen){
+  const q=Q[qi],good=q.t==="multi"?q.oks:[q.ok];const ok=chosen.length===good.length&&chosen.every(c=>good.includes(c));
+  [...$("#q-opts").children].forEach(b=>{b.disabled=true;const v=b.dataset.v,sel=chosen.includes(v),g=good.includes(v);if(g&&sel)b.classList.add("right");else if(g)b.classList.add(q.t==="multi"?"miss":"right");else if(sel)b.classList.add("wrong");});
+  $("#q-valid").hidden=true;if(ok)score++;else misses.push(q);$("#q-sc").textContent=`Score : ${score}`;
+  $("#q-fb").innerHTML=`<div class="fb ${ok?"ok":"bad"}"><strong>${ok?"Bonne réponse":"Réponse attendue : "+esc(good.join(" ; "))}</strong>${esc(q.fb)}</div>`;
+  const nx=$("#q-next");nx.hidden=false;nx.textContent=qi===Q.length-1?"Voir le résultat":"Question suivante";nx.focus();
+}
+$("#q-valid").addEventListener("click",()=>{const ch=[...$("#q-opts").children].filter(b=>b.getAttribute("aria-pressed")==="true").map(b=>b.dataset.v);if(!ch.length)return;answer(ch);});
+$("#q-next").addEventListener("click",()=>{if(qi<Q.length-1){qi++;showQ();}else endQuiz();});
+function endQuiz(){
+  $("#q-run").hidden=true;$("#q-end").hidden=false;$("#q-final").textContent=`${score} / ${Q.length}`;
+  const best=store.get("best",{});if(qkey&&!(best[qkey]>=score)){best[qkey]=score;store.set("best",best);}
+  $("#q-msg").textContent=score===Q.length?"Sans faute !":score>=Q.length*0.7?"Très bien. Revoyez les questions ci-dessous.":"Reprenez le schéma et les cartes, puis relancez un quiz.";
+  $("#q-review").innerHTML=misses.map(m=>`<div><strong>${esc(m.q)}</strong><br>${esc((m.t==="multi"?m.oks:[m.ok]).join(" ; "))}<br><small>${esc(m.fb)}</small></div>`).join("");
+  showBest();
+}
+function showBest(){const b=store.get("best",{}),P={all:"Tout",1:"Prélever",2:"Lire",3:"Chevaux",4:"Acheter"},L={I:"indisp.",all:"tout",A:"bonus"};const t=Object.keys(b).map(k=>{const[p,l]=k.split("-");return `${P[p]} (${L[l]}) : ${b[k]}`;});$("#q-best").textContent=t.length?"Meilleurs scores sur cet appareil · "+t.join(" · "):"";}
+$("#q-go").addEventListener("click",()=>startQuiz());
+$("#q-again").addEventListener("click",()=>{$("#q-end").hidden=true;$("#q-start").hidden=false;});
+showBest();
+
+/* ================= TRI ================= */
+let sCur=SORTS[0],sPlace={},sSel=null;
+segBuild($("#s-seg"),SORTS.map(s=>[s.id,s.short]),sCur.id,v=>{sCur=SORTS.find(s=>s.id===v);sReset();});
+function sReset(){sPlace={};sSel=null;$("#s-fb").innerHTML="";sCur.order=shuffle(sCur.items.map((_,i)=>i));sRender();}
+function chipBtn(i,where){const it=sCur.items[i];const b=document.createElement("button");b.type="button";b.className="chip";b.textContent=it[0];b.dataset.i=i;b.setAttribute("aria-pressed",String(sSel===i));
+  b.addEventListener("click",e=>{e.stopPropagation();if(where!==null){delete sPlace[i];sSel=null;}else sSel=sSel===i?null:i;$("#s-fb").innerHTML="";sRender();});return b;}
+function sRender(){
+  $("#s-title").textContent=sCur.title;$("#s-lv").innerHTML=lvChip(sCur.l);
+  const pool=$("#s-pool");pool.innerHTML="";sCur.order.filter(i=>sPlace[i]===undefined).forEach(i=>pool.appendChild(chipBtn(i,null)));
+  if(!pool.children.length){const p=document.createElement("span");p.className="muted";p.textContent="Toutes les étiquettes sont placées : vérifiez.";pool.appendChild(p);}
+  const bins=$("#s-bins");bins.innerHTML="";
+  sCur.bins.forEach((name,k)=>{const d=document.createElement("div");d.className="bin"+(sSel!==null?" armed":"");d.setAttribute("role","button");d.tabIndex=0;d.setAttribute("aria-label","Placer dans : "+name);
+    d.innerHTML=`<h3>${esc(name)}</h3>`;const inner=document.createElement("div");inner.className="pool";sCur.order.filter(i=>sPlace[i]===k).forEach(i=>inner.appendChild(chipBtn(i,k)));d.appendChild(inner);
+    const put=()=>{if(sSel===null)return;sPlace[sSel]=k;sSel=null;sRender();};d.addEventListener("click",put);d.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();put();}});bins.appendChild(d);});
+}
+$("#s-check").addEventListener("click",()=>{
+  const placed=Object.keys(sPlace).length;let good=0;
+  document.querySelectorAll("#s-bins .chip").forEach(b=>{const i=+b.dataset.i,ok=sCur.items[i][1]===sPlace[i];b.classList.add(ok?"right":"wrong");if(ok)good++;});
+  const tot=sCur.items.length,wrong=placed-good;
+  $("#s-fb").innerHTML=`<div class="fb ${good===tot?"ok":"bad"}"><strong>${good} / ${tot} bien placées</strong>${placed<tot?"Il reste des étiquettes dans la réserve. ":""}${wrong?"Touchez une étiquette rouge pour la remettre dans la réserve, puis replacez-la.":good===tot?"Tout est juste.":""}</div>`;
+});
+$("#s-reset").addEventListener("click",sReset);
+sReset();
+
+/* ================= ORDRE ================= */
+let oCur=ORDERS[0],oList=[];
+segBuild($("#o-seg"),ORDERS.map(o=>[o.id,o.short]),oCur.id,v=>{oCur=ORDERS.find(o=>o.id===v);oShuffle();});
+function oShuffle(){do{oList=shuffle(oCur.steps.map((_,i)=>i));}while(oList.every((v,i)=>v===i));$("#o-fb").innerHTML="";oRender();}
+function oRender(marks){
+  $("#o-title").textContent=oCur.title;$("#o-lv").innerHTML=lvChip(oCur.l);const ol=$("#o-list");ol.innerHTML="";
+  oList.forEach((s,p)=>{const li=document.createElement("li");if(marks)li.className=marks[p]?"right":"wrong";
+    li.innerHTML=`<span>${esc(oCur.steps[s])}</span><div class="mv"><button type="button" aria-label="Monter">↑</button><button type="button" aria-label="Descendre">↓</button></div>`;
+    const[up,dn]=li.querySelectorAll("button");up.disabled=p===0;dn.disabled=p===oList.length-1;
+    up.addEventListener("click",()=>{[oList[p-1],oList[p]]=[oList[p],oList[p-1]];$("#o-fb").innerHTML="";oRender();ol.children[p-1].querySelector("button").focus();});
+    dn.addEventListener("click",()=>{[oList[p+1],oList[p]]=[oList[p],oList[p+1]];$("#o-fb").innerHTML="";oRender();ol.children[p+1].querySelectorAll("button")[1].focus();});
+    ol.appendChild(li);});
+}
+$("#o-check").addEventListener("click",()=>{const m=oList.map((s,p)=>s===p),g=m.filter(Boolean).length;oRender(m);
+  $("#o-fb").innerHTML=`<div class="fb ${g===m.length?"ok":"bad"}"><strong>${g} / ${m.length} étapes à la bonne place</strong>${g===m.length?"La séquence est juste.":"Les étapes en rouge ne sont pas à leur place : déplacez-les et vérifiez à nouveau."}</div>`;});
+$("#o-shuffle").addEventListener("click",oShuffle);
+oShuffle();
+
+
+let mastered=store.get("mastered",{});
+function goCards(d){openTab("t-cards");cLvl="all";store.set("clvl","all");[...$("#c-lvl").children].forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.v==="all")));revOnly=false;deckId=d;store.set("deck",d);[...$("#deck-seg").children].forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.v===d)));pos=0;buildDeck();window.scrollTo(0,0);}
+function goSeg(tab,seg,id){openTab(tab);const b=[...$(seg).children].find(x=>x.dataset.v===id);if(b)b.click();window.scrollTo(0,0);}
+function goQuiz(objs){openTab("t-quiz");startQuiz(QUIZ.filter(q=>objs.includes(q.o)));window.scrollTo(0,0);}
+function actBtn(label,fn){const b=document.createElement("button");b.type="button";b.textContent=label;b.addEventListener("click",fn);return b;}
+function renderSum(){let ti=0,mi=0,ta=0,ma=0;OBJ.forEach(p=>p.items.forEach(([id,l])=>{if(l==="I"){ti++;if(mastered[id])mi++;}else{ta++;if(mastered[id])ma++;}}));$("#ob-i").textContent=`${mi} / ${ti}`;$("#ob-a").textContent=`${ma} / ${ta}`;}
+function renderObj(){
+  const box=$("#ob-list");box.innerHTML="";
+  OBJ.forEach(part=>{const sec=document.createElement("div");sec.className="panel part";const h=document.createElement("h2");h.textContent=part.p;sec.appendChild(h);
+    part.items.forEach(([id,l,txt,acts])=>{
+      const nq=QUIZ.filter(q=>q.o===id).length;const row=document.createElement("div");row.className="obj";
+      row.innerHTML=`<input type="checkbox" id="ob-${id}" ${mastered[id]?"checked":""} aria-label="Je sais faire"><div><p>${esc(txt)}</p><div class="meta">${lvChip(l)}</div></div>`;
+      const meta=row.querySelector(".meta"),wrap=document.createElement("span");wrap.className="acts";wrap.style.cssText="display:flex;flex-wrap:wrap;gap:6px";
+      if(nq)wrap.appendChild(actBtn(`Quiz · ${nq} question${nq>1?"s":""}`,()=>goQuiz([id])));
+      acts.forEach(([k,v,lab])=>wrap.appendChild(actBtn(lab,()=>k==="cards"?goCards(v):k==="sort"?goSeg("t-sort","#s-seg",v):k==="order"?goSeg("t-order","#o-seg",v):k==="sim"?goSeg("t-sim","#sim-seg",v):(openTab("t-ana"),window.scrollTo(0,0)))));
+      meta.appendChild(wrap);
+      row.querySelector("input").addEventListener("change",e=>{mastered[id]=e.target.checked;store.set("mastered",mastered);renderSum();});
+      sec.appendChild(row);});
+    box.appendChild(sec);});
+  renderSum();
+}
+renderObj();
+renderAna();renderSim();
+openTab(store.get("tab","t-ana"));
+
+
+})();
+</script>
+</body>
+</html>
